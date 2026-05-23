@@ -1,0 +1,61 @@
+{
+  "name": "osv-scanner",
+  "description": "Google's OSV (Open Source Vulnerabilities) scanner for dependency vulnerabilities",
+  "enabled": false,
+  "required": false,
+
+  "installation": {
+    "check_command": "which osv-scanner",
+    "install_url": "https://google.github.io/osv-scanner/",
+    "install_instructions": "go install github.com/google/osv-scanner/cmd/osv-scanner@latest"
+  },
+
+  "scans": [
+    {
+      "name": "lockfile",
+      "command": "osv-scanner --format json --lockfile {lockfile}",
+      "timeout_seconds": 120,
+      "output_format": "json",
+      "categories": ["DEPENDENCIES"]
+    },
+    {
+      "name": "directory",
+      "command": "osv-scanner --format json --recursive .",
+      "timeout_seconds": 300,
+      "output_format": "json",
+      "categories": ["DEPENDENCIES"]
+    }
+  ],
+
+  "mapping": {
+    "severity": {
+      "CRITICAL": "critical",
+      "HIGH": "high",
+      "MODERATE": "medium",
+      "LOW": "low"
+    },
+    "confidence": {
+      "default": 0.95
+    },
+    "exposure": {
+      "default": "local",
+      "overrides": {
+        "network_accessible": "internet_facing"
+      }
+    }
+  },
+
+  "parser": {
+    "type": "json",
+    "results_path": "results[].packages[].vulnerabilities[]",
+    "fields": {
+      "id": "id",
+      "title": "summary",
+      "description": "details",
+      "severity": "severity",
+      "package": "package.name",
+      "version": "package.version",
+      "references": "references[].url"
+    }
+  }
+}

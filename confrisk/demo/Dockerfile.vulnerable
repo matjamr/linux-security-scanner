@@ -1,0 +1,28 @@
+FROM ubuntu:22.04
+
+# --- Celowe podatności konfiguracyjne (do wykrycia przez confrisk) ---
+
+RUN apt-get update && apt-get install -y openssh-server cron && rm -rf /var/lib/apt/lists/*
+
+# SSH-001 + SSH-002: root login po haśle, hasła włączone
+RUN mkdir -p /etc/ssh && cat > /etc/ssh/sshd_config <<'EOF'
+PermitRootLogin yes
+PasswordAuthentication yes
+EOF
+
+# FILE-002: shadow czytelny dla wszystkich (krytyczne!)
+RUN chmod 644 /etc/shadow
+
+# FILE-003: world-writable plik w /etc
+RUN echo "junk" > /etc/badconfig && chmod 666 /etc/badconfig
+
+# CRON-001: zapisywalny crontab
+RUN touch /etc/crontab && chmod 666 /etc/crontab
+
+# NET-001: włączony IP forwarding (zapis w obrazie nie utrzyma /proc,
+#          ale demonstruje regułę; realnie ustawisz przez --sysctl przy uruchomieniu)
+
+# Skopiuj zbudowane, statyczne confrisk (patrz sekcja 10)
+COPY confrisk /usr/local/bin/confrisk
+
+ENTRYPOINT ["/usr/local/bin/confrisk"]

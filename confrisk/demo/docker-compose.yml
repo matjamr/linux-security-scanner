@@ -1,0 +1,33 @@
+services:
+  confrisk-demo:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.vulnerable
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./out:/out
+    command: ["--asset", "crown-jewel", "--out", "/out/report.html"]
+
+  confrisk-demo-dev:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.vulnerable
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./out:/out
+    command: ["--asset", "dev", "--out", "/out/dev.html"]
+
+  confrisk-demo-production:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.vulnerable
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./out:/out
+    command: ["--asset", "production", "--out", "/out/production.html"]

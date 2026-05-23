@@ -1,0 +1,196 @@
+{
+  "version": "1.0",
+  "description": "Dependency security rules - vulnerable packages, EOL software, insecure versions",
+
+  "package_managers": [
+    {
+      "name": "npm",
+      "manifest_files": ["package.json", "package-lock.json"],
+      "command": "npm audit --json"
+    },
+    {
+      "name": "pip",
+      "manifest_files": ["requirements.txt", "Pipfile", "poetry.lock"],
+      "command": "pip-audit --format json"
+    },
+    {
+      "name": "apt",
+      "manifest_files": ["/var/lib/dpkg/status"],
+      "command": "apt list --installed"
+    },
+    {
+      "name": "yum",
+      "manifest_files": ["/var/lib/rpm"],
+      "command": "yum list installed"
+    },
+    {
+      "name": "cargo",
+      "manifest_files": ["Cargo.lock"],
+      "command": "cargo audit --json"
+    },
+    {
+      "name": "go",
+      "manifest_files": ["go.mod", "go.sum"],
+      "command": "govulncheck -json ./..."
+    }
+  ],
+
+  "blocklist": {
+    "description": "Packages that should never be used",
+    "packages": [
+      {
+        "name": "request",
+        "ecosystem": "npm",
+        "reason": "Deprecated, unmaintained since 2020",
+        "severity": "medium",
+        "alternative": "axios, node-fetch, got"
+      },
+      {
+        "name": "node-uuid",
+        "ecosystem": "npm",
+        "reason": "Deprecated, use 'uuid' instead",
+        "severity": "low",
+        "alternative": "uuid"
+      },
+      {
+        "name": "cryptiles",
+        "ecosystem": "npm",
+        "reason": "Known vulnerabilities, unmaintained",
+        "severity": "high",
+        "alternative": "crypto (native)"
+      },
+      {
+        "name": "event-stream",
+        "ecosystem": "npm",
+        "reason": "Supply chain attack history (2018)",
+        "severity": "critical",
+        "alternative": "through2, readable-stream"
+      },
+      {
+        "name": "python2",
+        "ecosystem": "apt",
+        "reason": "Python 2 EOL since 2020",
+        "severity": "high",
+        "alternative": "python3"
+      },
+      {
+        "name": "openssl",
+        "ecosystem": "apt",
+        "version_pattern": "^1.0.*",
+        "reason": "OpenSSL 1.0.x EOL, use 1.1.1+ or 3.x",
+        "severity": "critical",
+        "alternative": "openssl >= 1.1.1"
+      },
+      {
+        "name": "lodash",
+        "ecosystem": "npm",
+        "version_pattern": "^4.17.[0-9]$",
+        "reason": "Prototype pollution vulnerabilities < 4.17.21",
+        "severity": "high",
+        "alternative": "lodash >= 4.17.21"
+      },
+      {
+        "name": "log4j",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.(0|1[0-4])\\..*",
+        "reason": "Log4Shell vulnerability (CVE-2021-44228)",
+        "severity": "critical",
+        "alternative": "log4j >= 2.17.1"
+      },
+      {
+        "name": "spring-core",
+        "ecosystem": "maven",
+        "version_pattern": "^5\\.3\\.[0-9]$",
+        "reason": "Spring4Shell vulnerability (CVE-2022-22965)",
+        "severity": "critical",
+        "alternative": "spring-core >= 5.3.18"
+      },
+      {
+        "name": "flask",
+        "ecosystem": "pip",
+        "version_pattern": "^0\\..*",
+        "reason": "Very old Flask versions with security issues",
+        "severity": "high",
+        "alternative": "flask >= 2.0"
+      },
+      {
+        "name": "django",
+        "ecosystem": "pip",
+        "version_pattern": "^[12]\\..*",
+        "reason": "Django 1.x and 2.x are EOL",
+        "severity": "high",
+        "alternative": "django >= 3.2 (LTS)"
+      },
+      {
+        "name": "pillow",
+        "ecosystem": "pip",
+        "version_pattern": "^[1-7]\\..*",
+        "reason": "Multiple vulnerabilities in Pillow < 8.0",
+        "severity": "high",
+        "alternative": "pillow >= 9.0"
+      }
+    ]
+  },
+
+  "watchlist": {
+    "description": "Packages that require additional scrutiny",
+    "packages": [
+      {
+        "name": "axios",
+        "ecosystem": "npm",
+        "reason": "Popular target for supply chain attacks",
+        "severity": "info",
+        "action": "verify_checksum"
+      },
+      {
+        "name": "react",
+        "ecosystem": "npm",
+        "reason": "Critical UI library - verify integrity",
+        "severity": "info",
+        "action": "verify_checksum"
+      },
+      {
+        "name": "express",
+        "ecosystem": "npm",
+        "reason": "Core framework - monitor for updates",
+        "severity": "info",
+        "action": "monitor_updates"
+      }
+    ]
+  },
+
+  "version_policies": {
+    "description": "Version freshness requirements",
+    "rules": [
+      {
+        "category": "security_packages",
+        "packages": ["openssl", "openssh", "libssl", "sudo"],
+        "max_age_days": 90,
+        "severity": "high",
+        "message": "Security-critical packages must be updated within 90 days"
+      },
+      {
+        "category": "runtime",
+        "packages": ["python3", "nodejs", "openjdk", "ruby"],
+        "max_age_days": 180,
+        "severity": "medium",
+        "message": "Runtime environments should be updated within 6 months"
+      },
+      {
+        "category": "all",
+        "packages": ["*"],
+        "max_age_days": 365,
+        "severity": "low",
+        "message": "All packages should be updated at least yearly"
+      }
+    ]
+  },
+
+  "cve_severity_mapping": {
+    "CRITICAL": "critical",
+    "HIGH": "high",
+    "MEDIUM": "medium",
+    "LOW": "low",
+    "UNKNOWN": "info"
+  }
+}

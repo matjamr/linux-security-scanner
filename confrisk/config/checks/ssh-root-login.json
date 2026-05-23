@@ -1,0 +1,35 @@
+{
+  "id": "SSH-001",
+  "name": "SSH root login permitted",
+  "category": "PRIVILEGES",
+  "description": "SSH allows direct root login, increasing attack surface. Root access should require initial login as unprivileged user followed by privilege escalation (sudo).",
+  "severity": "high",
+  "exposure": "internet_facing",
+  "confidence": 0.95,
+  "effort": "trivial",
+  "enabled": true,
+
+  "detection": {
+    "type": "config_directive",
+    "file": "/etc/ssh/sshd_config",
+    "directive": "PermitRootLogin",
+    "expected": "no",
+    "fail_on_missing": false,
+    "missing_confidence": 0.7
+  },
+
+  "remediation": {
+    "summary": "Disable direct root login via SSH",
+    "steps": [
+      "Edit /etc/ssh/sshd_config",
+      "Set 'PermitRootLogin no'",
+      "Restart SSH service: systemctl restart sshd"
+    ],
+    "references": [
+      "https://www.ssh.com/academy/ssh/sshd_config",
+      "CIS Benchmark 5.2.10"
+    ]
+  },
+
+  "tags": ["ssh", "authentication", "cis-benchmark", "privilege-escalation"]
+}

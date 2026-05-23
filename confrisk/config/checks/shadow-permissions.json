@@ -1,0 +1,33 @@
+{
+  "id": "FILE-002",
+  "name": "/etc/shadow readable by unprivileged users",
+  "category": "FILES",
+  "description": "The shadow file contains password hashes and must not be world-readable. This is a CRITICAL security issue that allows local privilege escalation.",
+  "severity": "critical",
+  "exposure": "local",
+  "confidence": 0.99,
+  "effort": "trivial",
+  "enabled": true,
+
+  "detection": {
+    "type": "file_permission",
+    "file": "/etc/shadow",
+    "check": "not_world_readable",
+    "max_mode": "0640"
+  },
+
+  "remediation": {
+    "summary": "Restrict /etc/shadow permissions to root only",
+    "steps": [
+      "Run: chmod 640 /etc/shadow",
+      "Or: chmod 600 /etc/shadow (most secure)",
+      "Verify: ls -l /etc/shadow"
+    ],
+    "references": [
+      "https://www.pathname.com/fhs/pub/fhs-2.3.html",
+      "CIS Benchmark 6.1.3"
+    ]
+  },
+
+  "tags": ["file-permissions", "credentials", "cis-benchmark", "privilege-escalation"]
+}

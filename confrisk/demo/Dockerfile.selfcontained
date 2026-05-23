@@ -1,0 +1,41 @@
+# Multi-stage build: compile confrisk, then create vulnerable system
+FROM rust:1.75-alpine AS builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apk add --no-cache musl-dev
+
+# Copy source code
+COPY ../Cargo.toml ./Cargo.toml
+COPY ../src ./src
+
+# Build static binary
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# Final stage: create vulnerable Ubuntu system
+FROM ubuntu:22.04
+
+# --- Celowe podatności konfiguracyjne (do wykrycia przez confrisk) ---
+
+RUN apt-get update && apt-get install -y openssh-server cron && rm -rf /var/lib/apt/lists/*
+
+# SSH-001 + SSH-002: root login po haśle, hasła włączone
+RUN mkdir -p /etc/ssh && cat > /etc/ssh/sshd_config <<'EOF'
+PermitRootLogin yes
+PasswordAuthentication yes
+EOF
+
+# FILE-002: shadow czytelny dla wszystkich (krytyczne!)
+RUN chmod 644 /etc/shadow
+
+# FILE-003: world-writable plik w /etc
+RUN echo "junk" > /etc/badconfig && chmod 666 /etc/badconfig
+
+# CRON-001: zapisywalny crontab
+RUN touch /etc/crontab && chmod 666 /etc/crontab
+
+# Copy the built binary from builder stage
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/confrisk /usr/local/bin/confrisk
+
+ENTRYPOINT ["/usr/local/bin/confrisk"]

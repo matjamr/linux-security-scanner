@@ -1,0 +1,59 @@
+{
+  "name": "lynis",
+  "description": "Security auditing tool for Unix/Linux systems",
+  "enabled": false,
+  "required": false,
+
+  "installation": {
+    "check_command": "which lynis",
+    "install_url": "https://cisofy.com/lynis/",
+    "install_instructions": "apt-get install lynis  # or download from GitHub"
+  },
+
+  "scans": [
+    {
+      "name": "full_audit",
+      "command": "lynis audit system --quick --quiet",
+      "timeout_seconds": 600,
+      "output_format": "text",
+      "categories": ["PRIVILEGES", "KERNEL", "NETWORK", "LOGS", "FILES", "PROCESSES"]
+    }
+  ],
+
+  "mapping": {
+    "severity": {
+      "suggestion": "medium",
+      "warning": "high",
+      "note": "low"
+    },
+    "confidence": {
+      "default": 0.85
+    },
+    "exposure": {
+      "default": "local"
+    }
+  },
+
+  "parser": {
+    "type": "text",
+    "patterns": [
+      {
+        "regex": "Warning: (.+?) \\[(.+?)\\]",
+        "groups": {
+          "title": 1,
+          "id": 2
+        },
+        "severity": "high"
+      },
+      {
+        "regex": "Suggestion: (.+?) \\[(.+?)\\]",
+        "groups": {
+          "title": 1,
+          "id": 2
+        },
+        "severity": "medium"
+      }
+    ],
+    "report_file": "/var/log/lynis.log"
+  }
+}

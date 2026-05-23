@@ -1,0 +1,76 @@
+{
+  "categories": [
+    {
+      "id": "PRIVILEGES",
+      "name": "Privilege & Access Control",
+      "description": "User permissions, sudo configuration, PAM settings",
+      "color": "#ef4444"
+    },
+    {
+      "id": "DEPENDENCIES",
+      "name": "Software Dependencies",
+      "description": "Vulnerable or outdated packages and libraries",
+      "color": "#f97316"
+    },
+    {
+      "id": "OPEN_PORTS",
+      "name": "Network Ports",
+      "description": "Exposed network services and listening ports",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "LOGS",
+      "name": "Logging & Auditing",
+      "description": "System logs, audit configuration, log retention",
+      "color": "#84cc16"
+    },
+    {
+      "id": "SECRETS",
+      "name": "Secrets & Credentials",
+      "description": "API keys, passwords, certificates, private keys",
+      "color": "#dc2626"
+    },
+    {
+      "id": "NETWORK",
+      "name": "Network Configuration",
+      "description": "Firewall rules, routing, IP forwarding, DNS",
+      "color": "#06b6d4"
+    },
+    {
+      "id": "KERNEL",
+      "name": "Kernel Hardening",
+      "description": "Kernel parameters, ASLR, stack protection",
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "CONTAINERS",
+      "name": "Container Security",
+      "description": "Docker, Kubernetes, container runtime config",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "FILES",
+      "name": "File System",
+      "description": "File permissions, mount options, integrity",
+      "color": "#6366f1"
+    },
+    {
+      "id": "PROCESSES",
+      "name": "Process & Services",
+      "description": "Running services, systemd units, cron jobs",
+      "color": "#a855f7"
+    },
+    {
+      "id": "COMPLIANCE",
+      "name": "Compliance & Policy",
+      "description": "CIS benchmarks, NIST, PCI-DSS, GDPR requirements",
+      "color": "#ec4899"
+    },
+    {
+      "id": "ENCRYPTION",
+      "name": "Encryption & TLS",
+      "description": "Disk encryption, TLS configuration, cipher suites",
+      "color": "#14b8a6"
+    }
+  ]
+}

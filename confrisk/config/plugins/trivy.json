@@ -1,0 +1,71 @@
+{
+  "name": "trivy",
+  "description": "Comprehensive vulnerability scanner for containers and filesystems",
+  "enabled": false,
+  "required": false,
+
+  "installation": {
+    "check_command": "which trivy",
+    "install_url": "https://aquasecurity.github.io/trivy/",
+    "install_instructions": "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
+  },
+
+  "scans": [
+    {
+      "name": "filesystem",
+      "command": "trivy fs --format json --severity HIGH,CRITICAL /",
+      "timeout_seconds": 300,
+      "output_format": "json",
+      "categories": ["DEPENDENCIES", "SECRETS", "COMPLIANCE"]
+    },
+    {
+      "name": "image",
+      "command": "trivy image --format json {image_name}",
+      "timeout_seconds": 180,
+      "output_format": "json",
+      "categories": ["CONTAINERS", "DEPENDENCIES"]
+    },
+    {
+      "name": "config",
+      "command": "trivy config --format json /etc",
+      "timeout_seconds": 60,
+      "output_format": "json",
+      "categories": ["COMPLIANCE", "FILES"]
+    }
+  ],
+
+  "mapping": {
+    "severity": {
+      "CRITICAL": "critical",
+      "HIGH": "high",
+      "MEDIUM": "medium",
+      "LOW": "low",
+      "UNKNOWN": "info"
+    },
+    "confidence": {
+      "default": 0.9
+    },
+    "exposure": {
+      "default": "local",
+      "overrides": {
+        "SECRET": "internet_facing",
+        "VULNERABILITY": "internet_facing"
+      }
+    }
+  },
+
+  "parser": {
+    "type": "json",
+    "results_path": "Results[].Vulnerabilities[]",
+    "fields": {
+      "id": "VulnerabilityID",
+      "title": "Title",
+      "description": "Description",
+      "severity": "Severity",
+      "package": "PkgName",
+      "installed_version": "InstalledVersion",
+      "fixed_version": "FixedVersion",
+      "references": "References[]"
+    }
+  }
+}

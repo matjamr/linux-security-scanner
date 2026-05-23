@@ -1,0 +1,47 @@
+# Rust
+confrisk/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+confrisk/Cargo.lock
+
+# Generated binaries
+confrisk/demo/confrisk
+confrisk/confrisk
+
+# Demo outputs
+confrisk/demo/out/*.html
+confrisk/demo/out/*.json
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Environment files
+.env
+.env.local
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+
+# Test outputs
+/test-reports/
+/coverage/

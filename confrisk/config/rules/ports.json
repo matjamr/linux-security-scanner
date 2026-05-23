@@ -1,0 +1,219 @@
+{
+  "version": "1.0",
+  "description": "Network port security rules - dangerous ports, unexpected services",
+
+  "detection_methods": [
+    {
+      "name": "netstat",
+      "command": "netstat -tuln",
+      "enabled": true
+    },
+    {
+      "name": "ss",
+      "command": "ss -tuln",
+      "enabled": true,
+      "preferred": true
+    },
+    {
+      "name": "lsof",
+      "command": "lsof -i -P -n",
+      "enabled": true
+    }
+  ],
+
+  "dangerous_ports": [
+    {
+      "port": 23,
+      "protocol": "tcp",
+      "name": "telnet",
+      "severity": "critical",
+      "reason": "Telnet transmits credentials in plaintext",
+      "remediation": "Use SSH (port 22) instead",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 21,
+      "protocol": "tcp",
+      "name": "ftp",
+      "severity": "high",
+      "reason": "FTP is unencrypted and outdated",
+      "remediation": "Use SFTP or FTPS",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 69,
+      "protocol": "udp",
+      "name": "tftp",
+      "severity": "high",
+      "reason": "TFTP has no authentication or encryption",
+      "remediation": "Disable TFTP service",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 445,
+      "protocol": "tcp",
+      "name": "smb",
+      "severity": "high",
+      "reason": "SMB exposed to internet is high-risk (ransomware vector)",
+      "remediation": "Restrict SMB to internal network only",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 3389,
+      "protocol": "tcp",
+      "name": "rdp",
+      "severity": "high",
+      "reason": "RDP exposed to internet is prime attack target",
+      "remediation": "Use VPN or restrict to trusted IPs",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 27017,
+      "protocol": "tcp",
+      "name": "mongodb",
+      "severity": "critical",
+      "reason": "MongoDB often misconfigured without authentication",
+      "remediation": "Enable authentication, bind to localhost",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 6379,
+      "protocol": "tcp",
+      "name": "redis",
+      "severity": "critical",
+      "reason": "Redis has no default authentication",
+      "remediation": "Enable authentication, bind to localhost",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 5432,
+      "protocol": "tcp",
+      "name": "postgresql",
+      "severity": "high",
+      "reason": "Database should not be internet-facing",
+      "remediation": "Bind to localhost, use firewall",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 3306,
+      "protocol": "tcp",
+      "name": "mysql",
+      "severity": "high",
+      "reason": "Database should not be internet-facing",
+      "remediation": "Bind to localhost or private network",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 9200,
+      "protocol": "tcp",
+      "name": "elasticsearch",
+      "severity": "high",
+      "reason": "Elasticsearch often exposed without authentication",
+      "remediation": "Enable X-Pack security, restrict access",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 2375,
+      "protocol": "tcp",
+      "name": "docker",
+      "severity": "critical",
+      "reason": "Unencrypted Docker API allows container escape",
+      "remediation": "Use TLS (port 2376) or Unix socket only",
+      "exposure": "internet_facing"
+    },
+    {
+      "port": 10250,
+      "protocol": "tcp",
+      "name": "kubelet",
+      "severity": "critical",
+      "reason": "Kubernetes kubelet API should never be public",
+      "remediation": "Use authentication, restrict to control plane",
+      "exposure": "internet_facing"
+    }
+  ],
+
+  "unexpected_ports": {
+    "description": "Ports that typically shouldn't be listening",
+    "ports": [
+      {
+        "port": 8080,
+        "name": "http-alt",
+        "severity": "medium",
+        "reason": "Development server port in production",
+        "exposure": "internet_facing"
+      },
+      {
+        "port": 4444,
+        "name": "common-backdoor",
+        "severity": "critical",
+        "reason": "Common port for Metasploit and backdoors",
+        "exposure": "any"
+      },
+      {
+        "port": 31337,
+        "name": "elite-backdoor",
+        "severity": "critical",
+        "reason": "Well-known backdoor/hacker port",
+        "exposure": "any"
+      },
+      {
+        "port": 12345,
+        "name": "netbus",
+        "severity": "critical",
+        "reason": "NetBus trojan default port",
+        "exposure": "any"
+      }
+    ]
+  },
+
+  "port_ranges": {
+    "description": "Port range policies",
+    "rules": [
+      {
+        "range": "0-1023",
+        "name": "privileged",
+        "severity": "medium",
+        "message": "Privileged port - ensure service runs as root intentionally"
+      },
+      {
+        "range": "49152-65535",
+        "name": "ephemeral",
+        "severity": "low",
+        "message": "Ephemeral port range - should not have persistent listeners"
+      }
+    ]
+  },
+
+  "allowed_services": {
+    "description": "Known-good services (whitelist approach)",
+    "services": [
+      {"port": 22, "name": "ssh", "exposure": "adjacent_network"},
+      {"port": 80, "name": "http", "exposure": "internet_facing"},
+      {"port": 443, "name": "https", "exposure": "internet_facing"},
+      {"port": 25, "name": "smtp", "exposure": "internet_facing"},
+      {"port": 53, "name": "dns", "exposure": "internet_facing"},
+      {"port": 123, "name": "ntp", "exposure": "internet_facing"}
+    ]
+  },
+
+  "exposure_detection": {
+    "description": "How to detect if port is internet-facing",
+    "methods": [
+      {
+        "name": "bind_address",
+        "description": "Check if bound to 0.0.0.0 or public IP",
+        "exposure": "internet_facing"
+      },
+      {
+        "name": "bind_localhost",
+        "description": "Bound to 127.0.0.1",
+        "exposure": "local"
+      },
+      {
+        "name": "bind_private",
+        "description": "Bound to 10.x.x.x, 172.16.x.x, 192.168.x.x",
+        "exposure": "adjacent_network"
+      }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "gitleaks",
+  "description": "Scan for secrets, passwords, and API keys in git repositories and files",
+  "enabled": false,
+  "required": false,
+
+  "installation": {
+    "check_command": "which gitleaks",
+    "install_url": "https://github.com/gitleaks/gitleaks",
+    "install_instructions": "brew install gitleaks  # or download binary"
+  },
+
+  "scans": [
+    {
+      "name": "filesystem",
+      "command": "gitleaks detect --source . --report-format json --report-path /tmp/gitleaks.json --no-git",
+      "timeout_seconds": 300,
+      "output_format": "json",
+      "categories": ["SECRETS"]
+    },
+    {
+      "name": "git_repo",
+      "command": "gitleaks detect --source . --report-format json --report-path /tmp/gitleaks.json",
+      "timeout_seconds": 300,
+      "output_format": "json",
+      "categories": ["SECRETS"]
+    }
+  ],
+
+  "mapping": {
+    "severity": {
+      "default": "critical"
+    },
+    "confidence": {
+      "default": 0.95
+    },
+    "exposure": {
+      "default": "internet_facing"
+    }
+  },
+
+  "parser": {
+    "type": "json",
+    "results_path": "[]",
+    "fields": {
+      "id": "RuleID",
+      "title": "Description",
+      "description": "Match",
+      "file": "File",
+      "line": "StartLine",
+      "secret": "Secret"
+    }
+  },
+
+  "redaction": {
+    "enabled": true,
+    "pattern": "***REDACTED***",
+    "fields": ["secret", "Match"]
+  }
+}
