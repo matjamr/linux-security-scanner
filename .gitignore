@@ -45,3 +45,27 @@ Thumbs.db
 # Test outputs
 /test-reports/
 /coverage/
+
+# Release packages
+confrisk/releases/
+confrisk/*.deb
+confrisk/*.rpm
+confrisk/*.snap
+confrisk/*.tar.gz
+confrisk/*.tar.gz.sha256
+
+# NPM demo project
+confrisk/examples/npm-project-demo/node_modules/
+
+# Generated reports
+confrisk/*.html
+confrisk/dev.html
+confrisk/prod.html
+confrisk/crown.html
+
+# Debian packaging
+confrisk/debian/confrisk/
+confrisk/debian/confrisk-npm/
+confrisk/debian/*.debhelper*
+confrisk/debian/*.substvars
+confrisk/debian/files

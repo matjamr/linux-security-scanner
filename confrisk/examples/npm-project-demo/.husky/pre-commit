@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run confrisk-npm security scan before commit
+echo "🔒 Running confrisk-npm security scan..."
+
+# Run the scan with fail-on-high setting
+confrisk-npm --path . --fail-on high --exit-code
+
+if [ $? -ne 0 ]; then
+  echo "❌ Security scan failed! Fix vulnerabilities before committing."
+  echo "Run 'npm audit fix' or check the output above."
+  exit 1
+fi
+
+echo "✅ Security scan passed!"

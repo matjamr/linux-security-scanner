@@ -52,3 +52,33 @@ Thumbs.db
 
 # Benchmarks
 /target/criterion/
+
+# Release packages
+/releases/
+*.deb
+*.rpm
+*.snap
+*.tar.gz
+*.tar.gz.sha256
+
+# NPM demo project
+/examples/npm-project-demo/node_modules/
+# Keep package-lock.json for demo to ensure consistent vulnerable versions
+
+# Generated reports
+/*.html
+/dev.html
+/prod.html
+/crown.html
+/report.html
+/dev-report.html
+/prod-report.html
+/security-report.html
+*.report.html
+
+# Debian packaging
+/debian/confrisk/
+/debian/confrisk-npm/
+/debian/*.debhelper*
+/debian/*.substvars
+/debian/files

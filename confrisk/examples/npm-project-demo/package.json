@@ -1,0 +1,22 @@
+{
+  "name": "npm-project-demo",
+  "version": "1.0.0",
+  "description": "Demo npm project with intentional vulnerabilities for confrisk-npm testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Running tests...\" && exit 0",
+    "security-scan": "confrisk-npm --path . --fail-on high --exit-code",
+    "prepare": "husky install"
+  },
+  "keywords": ["demo", "security", "testing"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.20",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}

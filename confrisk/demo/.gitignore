@@ -1,0 +1,18 @@
+# Generated binaries
+confrisk
+confrisk-npm
+
+# Docker volumes and data
+.docker/
+
+# Generated reports
+out/*.html
+out/*.json
+*.html
+*.json
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp

@@ -1,7 +1,19 @@
 [package]
 name = "confrisk"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
+
+[lib]
+name = "confrisk"
+path = "src/lib.rs"
+
+[[bin]]
+name = "confrisk"
+path = "src/main.rs"
+
+[[bin]]
+name = "confrisk-npm"
+path = "src/bin/confrisk-npm.rs"
 
 [profile.release]
 opt-level = 2
