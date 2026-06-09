@@ -1,0 +1,37 @@
+{
+  "name": "confrisk-npm",
+  "version": "0.2.0",
+  "description": "NPM dependency security scanner with risk-based scoring",
+  "bin": {
+    "confrisk-npm": "./confrisk-npm"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "keywords": [
+    "security",
+    "npm",
+    "dependencies",
+    "vulnerabilities",
+    "scanner",
+    "audit"
+  ],
+  "author": "confrisk developers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/confrisk.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "files": [
+    "confrisk-npm",
+    "install.js",
+    "README.md"
+  ]
+}

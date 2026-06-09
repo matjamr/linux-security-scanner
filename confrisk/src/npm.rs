@@ -1,8 +1,10 @@
 /// NPM dependency scanner and vulnerability checker
 
-use crate::config::{BlockedPackage, Config};
-use crate::model::{AssetCriticality, Exposure, Finding, Severity};
-use serde::{Deserialize, Serialize};
+use crate::config::Config;
+use crate::model::{Exposure, Finding, Severity};
+use crate::scanner::Scanner;
+use regex::Regex;
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -122,9 +124,11 @@ impl NpmScanner {
             project_path,
         }
     }
+}
 
+impl Scanner for NpmScanner {
     /// Run all npm security checks
-    pub fn scan(&self) -> Vec<Finding> {
+    fn scan(&self) -> Vec<Finding> {
         let mut findings = Vec::new();
 
         // Check if package.json exists
@@ -159,7 +163,9 @@ impl NpmScanner {
 
         findings
     }
+}
 
+impl NpmScanner {
     /// Check for blocklisted packages
     fn check_blocklist(&self) -> Vec<Finding> {
         let mut findings = Vec::new();
@@ -188,8 +194,7 @@ impl NpmScanner {
                 let matches = if blocked.version_pattern.is_empty() {
                     true
                 } else {
-                    // Simple version matching (could use regex crate for more complex)
-                    dep_version.contains(&blocked.name) || self.version_matches(dep_version, &blocked.version_pattern)
+                    self.version_matches(dep_version, &blocked.version_pattern)
                 };
 
                 if matches {
@@ -399,12 +404,17 @@ impl NpmScanner {
         serde_json::from_str(&content).ok()
     }
 
-    /// Simple version pattern matching
+    /// Version pattern matching using regex
     fn version_matches(&self, version: &str, pattern: &str) -> bool {
-        // Remove ^ and ~ prefixes
+        // Remove ^ and ~ prefixes from version for checking
         let clean_version = version.trim_start_matches('^').trim_start_matches('~');
 
-        // Simple pattern matching - could be enhanced with regex
+        // Try regex matching
+        if let Ok(re) = Regex::new(pattern) {
+            return re.is_match(clean_version);
+        }
+
+        // Fallback to simple wildcard matching if regex fails
         if pattern.contains('*') {
             let pattern_parts: Vec<&str> = pattern.split('.').collect();
             let version_parts: Vec<&str> = clean_version.split('.').collect();

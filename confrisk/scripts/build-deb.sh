@@ -35,6 +35,15 @@ cp -r config/* debian/confrisk/etc/confrisk/
 cp README.md debian/confrisk/usr/share/doc/confrisk/
 cp CONFIG_SYSTEM.md debian/confrisk/usr/share/doc/confrisk/
 
+# Export CONFRISK_CONFIG_DIR system-wide so every scanner (confrisk, -npm, -gradle)
+# reads from the packaged config without needing a --config flag. The binaries
+# also probe /etc/confrisk directly, so this is belt-and-suspenders.
+mkdir -p debian/confrisk/etc/profile.d
+cat > debian/confrisk/etc/profile.d/confrisk.sh << 'PROFILE'
+# Set by the confrisk .deb package. See: man confrisk / docs/CONFIG_LOCATION.md
+export CONFRISK_CONFIG_DIR=/etc/confrisk
+PROFILE
+
 # Create confrisk control file
 cat > debian/confrisk/DEBIAN/control << 'EOF'
 Package: confrisk

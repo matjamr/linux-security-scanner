@@ -1,0 +1,52 @@
+{
+  "name": "@confrisk/npm",
+  "version": "0.2.0",
+  "description": "NPM dependency security scanner with risk-based scoring and git hooks integration",
+  "main": "index.js",
+  "bin": {
+    "confrisk-npm": "./bin/confrisk-npm-wrapper.sh"
+  },
+  "scripts": {
+    "build": "cargo build --release --bin confrisk-npm",
+    "build:binary": "cargo build --release --bin confrisk-npm",
+    "install": "npm run build:binary || echo 'Binary build skipped - using pre-built binary'",
+    "test": "cargo test",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "security",
+    "npm",
+    "dependencies",
+    "vulnerabilities",
+    "scanner",
+    "audit",
+    "risk-assessment",
+    "git-hooks",
+    "ci-cd"
+  ],
+  "author": "confrisk developers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/confrisk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/confrisk/issues"
+  },
+  "homepage": "https://github.com/yourusername/confrisk#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "files": [
+    "bin/",
+    "config/",
+    "target/release/confrisk-npm",
+    "README.md",
+    "CONFRISK_NPM.md"
+  ]
+}

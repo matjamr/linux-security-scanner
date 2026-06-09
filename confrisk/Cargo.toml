@@ -15,9 +15,14 @@ path = "src/main.rs"
 name = "confrisk-npm"
 path = "src/bin/confrisk-npm.rs"
 
+[[bin]]
+name = "confrisk-gradle"
+path = "src/bin/confrisk-gradle.rs"
+
 [profile.release]
 opt-level = 2
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+regex = "1.10"

@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.6.0'
+}
+
+group = 'com.example.demo'
+version = '1.0.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Example vulnerable dependencies for security testing
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.1'  // CRITICAL: Log4Shell
+    implementation 'org.springframework:spring-core:5.3.5'        // CRITICAL: Spring4Shell
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'  // CRITICAL: Deserialization
+    implementation 'commons-collections:commons-collections:3.2.1'  // CRITICAL: RCE
+
+    // Safe dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

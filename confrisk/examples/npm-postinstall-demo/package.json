@@ -1,0 +1,25 @@
+{
+  "name": "npm-postinstall-demo",
+  "version": "1.0.0",
+  "description": "Demo: confrisk-npm with postinstall hook",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "confrisk-npm --path . --config ../../config --fail-on high --exit-code",
+    "security-scan": "confrisk-npm --path . --config ../../config",
+    "test": "echo \"Running tests...\" && exit 0"
+  },
+  "keywords": [
+    "demo",
+    "security",
+    "postinstall"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.20"
+  },
+  "devDependencies": {
+    "confrisk-npm": "file:../../npm-package"
+  }
+}

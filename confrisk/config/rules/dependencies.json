@@ -67,6 +67,365 @@
         "alternative": "through2, readable-stream"
       },
       {
+        "name": "colors",
+        "ecosystem": "npm",
+        "version_pattern": "^1.4.[1-4]$",
+        "reason": "Malicious code in versions 1.4.1-1.4.4 (infinite loop DoS)",
+        "severity": "critical",
+        "alternative": "chalk, ansi-colors"
+      },
+      {
+        "name": "faker",
+        "ecosystem": "npm",
+        "version_pattern": "^6.6.6$",
+        "reason": "Malicious version 6.6.6 (same author as colors attack)",
+        "severity": "critical",
+        "alternative": "@faker-js/faker"
+      },
+      {
+        "name": "ua-parser-js",
+        "ecosystem": "npm",
+        "version_pattern": "^0.7.29|^0.8.0|^1.0.0",
+        "reason": "Compromised versions 0.7.29, 0.8.0, 1.0.0 with crypto miners",
+        "severity": "critical",
+        "alternative": "ua-parser-js >= 0.7.31"
+      },
+      {
+        "name": "coa",
+        "ecosystem": "npm",
+        "version_pattern": "^2.0.3$",
+        "reason": "Compromised version 2.0.3 with password stealer",
+        "severity": "critical",
+        "alternative": "coa >= 2.0.4"
+      },
+      {
+        "name": "rc",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-1].*",
+        "reason": "Prototype pollution vulnerability (CVE-2018-16487)",
+        "severity": "high",
+        "alternative": "rc >= 1.2.8"
+      },
+      {
+        "name": "minimist",
+        "ecosystem": "npm",
+        "version_pattern": "^0.*|^1.2.[0-4]",
+        "reason": "Prototype pollution vulnerability (CVE-2020-7598, CVE-2021-44906)",
+        "severity": "high",
+        "alternative": "minimist >= 1.2.6"
+      },
+      {
+        "name": "ini",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-2].*",
+        "reason": "Prototype pollution vulnerability (CVE-2020-7788)",
+        "severity": "high",
+        "alternative": "ini >= 1.3.6"
+      },
+      {
+        "name": "deep-extend",
+        "ecosystem": "npm",
+        "version_pattern": "^0.[0-5].*",
+        "reason": "Prototype pollution vulnerability (CVE-2018-3750)",
+        "severity": "high",
+        "alternative": "lodash.merge, deep-extend >= 0.6.0"
+      },
+      {
+        "name": "merge",
+        "ecosystem": "npm",
+        "version_pattern": "^1.*",
+        "reason": "Prototype pollution vulnerability (CVE-2018-16469)",
+        "severity": "high",
+        "alternative": "lodash.merge >= 4.6.2"
+      },
+      {
+        "name": "jquery",
+        "ecosystem": "npm",
+        "version_pattern": "^1.*|^2.*|^3.[0-4].*",
+        "reason": "Multiple XSS vulnerabilities in versions < 3.5.0",
+        "severity": "high",
+        "alternative": "jquery >= 3.5.0"
+      },
+      {
+        "name": "handlebars",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-3].*|^4.[0-6].*",
+        "reason": "Prototype pollution and RCE (CVE-2019-19919, CVE-2021-23369)",
+        "severity": "critical",
+        "alternative": "handlebars >= 4.7.7"
+      },
+      {
+        "name": "ejs",
+        "ecosystem": "npm",
+        "version_pattern": "^[12].*|^3.[0-1][0-1].*",
+        "reason": "Remote Code Execution (CVE-2022-29078)",
+        "severity": "critical",
+        "alternative": "ejs >= 3.1.7"
+      },
+      {
+        "name": "pug",
+        "ecosystem": "npm",
+        "version_pattern": "^[12].*",
+        "reason": "Path traversal and RCE vulnerabilities",
+        "severity": "critical",
+        "alternative": "pug >= 3.0.0"
+      },
+      {
+        "name": "express-fileupload",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-2].*",
+        "reason": "Path traversal vulnerability (CVE-2020-7699)",
+        "severity": "high",
+        "alternative": "express-fileupload >= 1.3.1"
+      },
+      {
+        "name": "multer",
+        "ecosystem": "npm",
+        "version_pattern": "^1.4.[0-2]$",
+        "reason": "Path traversal in old versions",
+        "severity": "high",
+        "alternative": "multer >= 1.4.4"
+      },
+      {
+        "name": "serialize-javascript",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-2].*|^3.[0-1].*",
+        "reason": "XSS vulnerability (CVE-2020-7660)",
+        "severity": "high",
+        "alternative": "serialize-javascript >= 3.1.0"
+      },
+      {
+        "name": "node-serialize",
+        "ecosystem": "npm",
+        "reason": "Arbitrary code execution via IIFE deserialization",
+        "severity": "critical",
+        "alternative": "Do not deserialize untrusted data, use JSON.parse"
+      },
+      {
+        "name": "tar",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-3].*|^4.[0-3].*",
+        "reason": "Arbitrary file overwrite (CVE-2018-20834)",
+        "severity": "critical",
+        "alternative": "tar >= 4.4.18"
+      },
+      {
+        "name": "ajv",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-5].*|^6.[0-9].[0-4]",
+        "reason": "Prototype pollution (CVE-2020-15366)",
+        "severity": "high",
+        "alternative": "ajv >= 6.12.3"
+      },
+      {
+        "name": "ws",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-6].*|^7.4.[0-5]",
+        "reason": "ReDoS and memory exhaustion (CVE-2021-32640)",
+        "severity": "high",
+        "alternative": "ws >= 7.4.6"
+      },
+      {
+        "name": "socket.io",
+        "ecosystem": "npm",
+        "version_pattern": "^[01].*|^2.[0-3].*",
+        "reason": "Multiple vulnerabilities including XSS and DoS",
+        "severity": "high",
+        "alternative": "socket.io >= 2.4.0"
+      },
+      {
+        "name": "jsonwebtoken",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-7].*|^8.[0-4].*",
+        "reason": "Algorithm confusion attack (CVE-2015-9235)",
+        "severity": "critical",
+        "alternative": "jsonwebtoken >= 8.5.1"
+      },
+      {
+        "name": "bcrypt",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-4].*",
+        "reason": "Timing attacks and weak defaults in old versions",
+        "severity": "medium",
+        "alternative": "bcrypt >= 5.0.0"
+      },
+      {
+        "name": "cookie-session",
+        "ecosystem": "npm",
+        "version_pattern": "^1.*",
+        "reason": "Session fixation vulnerabilities",
+        "severity": "medium",
+        "alternative": "cookie-session >= 2.0.0"
+      },
+      {
+        "name": "express-session",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-9].*|^1.1[0-4].*",
+        "reason": "Session fixation (CVE-2015-7384)",
+        "severity": "medium",
+        "alternative": "express-session >= 1.15.0"
+      },
+      {
+        "name": "body-parser",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-9].*|^1.1[0-4].*",
+        "reason": "DoS via malformed JSON (CVE-2019-15657)",
+        "severity": "high",
+        "alternative": "body-parser >= 1.19.0"
+      },
+      {
+        "name": "debug",
+        "ecosystem": "npm",
+        "version_pattern": "^[01].*|^2.[0-5].*|^3.[0-1].*",
+        "reason": "RCE via %o formatter (CVE-2017-16137)",
+        "severity": "critical",
+        "alternative": "debug >= 2.6.9, >= 3.1.0"
+      },
+      {
+        "name": "morgan",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-8].*",
+        "reason": "Log injection vulnerabilities",
+        "severity": "medium",
+        "alternative": "morgan >= 1.9.1"
+      },
+      {
+        "name": "helmet",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-2].*|^3.*",
+        "reason": "Security bypass in older versions",
+        "severity": "medium",
+        "alternative": "helmet >= 4.0.0"
+      },
+      {
+        "name": "cors",
+        "ecosystem": "npm",
+        "version_pattern": "^2.[0-7].*",
+        "reason": "CORS misconfiguration and bypass issues",
+        "severity": "medium",
+        "alternative": "cors >= 2.8.5"
+      },
+      {
+        "name": "sanitize-html",
+        "ecosystem": "npm",
+        "version_pattern": "^1.*",
+        "reason": "XSS bypass vulnerabilities (CVE-2021-26539, CVE-2022-25887)",
+        "severity": "high",
+        "alternative": "sanitize-html >= 2.7.1"
+      },
+      {
+        "name": "validator",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-9].*|^1[0-2].*",
+        "reason": "ReDoS and validation bypass issues",
+        "severity": "medium",
+        "alternative": "validator >= 13.6.0"
+      },
+      {
+        "name": "xmldom",
+        "ecosystem": "npm",
+        "version_pattern": "^0.[0-4].*",
+        "reason": "XXE (XML External Entity) vulnerability (CVE-2021-21366)",
+        "severity": "critical",
+        "alternative": "@xmldom/xmldom >= 0.7.0"
+      },
+      {
+        "name": "pac-resolver",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-4].*",
+        "reason": "Remote Code Execution (CVE-2021-23406)",
+        "severity": "critical",
+        "alternative": "pac-resolver >= 5.0.0"
+      },
+      {
+        "name": "node-forge",
+        "ecosystem": "npm",
+        "version_pattern": "^0.*",
+        "reason": "Multiple crypto vulnerabilities (CVE-2022-24771, CVE-2022-24772)",
+        "severity": "high",
+        "alternative": "node-forge >= 1.3.0"
+      },
+      {
+        "name": "underscore",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-8].*|^1.9.[0-1]$",
+        "reason": "Arbitrary code execution (CVE-2021-23358)",
+        "severity": "high",
+        "alternative": "underscore >= 1.12.1"
+      },
+      {
+        "name": "moment",
+        "ecosystem": "npm",
+        "version_pattern": "^2.[0-9].*|^2.1[0-8].*",
+        "reason": "ReDoS vulnerability (CVE-2016-4055) - also now in maintenance mode",
+        "severity": "medium",
+        "alternative": "date-fns, dayjs, luxon"
+      },
+      {
+        "name": "axios",
+        "ecosystem": "npm",
+        "version_pattern": "^0.[0-9].*|^0.1[0-8].*|^0.19.*|^0.2[0-1].[0-4]",
+        "reason": "SSRF and CSRF vulnerabilities (CVE-2020-28168, CVE-2021-3749)",
+        "severity": "high",
+        "alternative": "axios >= 0.21.4"
+      },
+      {
+        "name": "express",
+        "ecosystem": "npm",
+        "version_pattern": "^[0-3].*",
+        "reason": "Multiple vulnerabilities including path traversal and XSS",
+        "severity": "high",
+        "alternative": "express >= 4.17.3"
+      },
+      {
+        "name": "got",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-9].*|^1[01].[0-6].*",
+        "reason": "Prototype pollution (CVE-2022-33987)",
+        "severity": "high",
+        "alternative": "got >= 11.8.5"
+      },
+      {
+        "name": "node-fetch",
+        "ecosystem": "npm",
+        "version_pattern": "^[12].*",
+        "reason": "Information exposure (CVE-2022-0235)",
+        "severity": "medium",
+        "alternative": "node-fetch >= 3.2.0"
+      },
+      {
+        "name": "path-parse",
+        "ecosystem": "npm",
+        "version_pattern": "^1.[0-6].*",
+        "reason": "ReDoS vulnerability (CVE-2021-23343)",
+        "severity": "medium",
+        "alternative": "path-parse >= 1.0.7"
+      },
+      {
+        "name": "yargs-parser",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-9].*|^1[0-2].*|^13.[0-1].*",
+        "reason": "Prototype pollution (CVE-2020-7608)",
+        "severity": "high",
+        "alternative": "yargs-parser >= 13.1.2"
+      },
+      {
+        "name": "shelljs",
+        "ecosystem": "npm",
+        "version_pattern": "^0.[0-7].*",
+        "reason": "Command injection vulnerabilities",
+        "severity": "critical",
+        "alternative": "shelljs >= 0.8.5"
+      },
+      {
+        "name": "glob-parent",
+        "ecosystem": "npm",
+        "version_pattern": "^[1-4].*|^5.[0-1].[0-1]",
+        "reason": "ReDoS vulnerability (CVE-2020-28469)",
+        "severity": "medium",
+        "alternative": "glob-parent >= 5.1.2"
+      },
+      {
         "name": "python2",
         "ecosystem": "apt",
         "reason": "Python 2 EOL since 2020",
@@ -98,12 +457,220 @@
         "alternative": "log4j >= 2.17.1"
       },
       {
+        "name": "log4j-core",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.(0|1[0-6])\\..*",
+        "reason": "Log4Shell and related vulnerabilities (CVE-2021-44228, CVE-2021-45046)",
+        "severity": "critical",
+        "alternative": "log4j-core >= 2.17.1"
+      },
+      {
         "name": "spring-core",
         "ecosystem": "maven",
         "version_pattern": "^5\\.3\\.[0-9]$",
         "reason": "Spring4Shell vulnerability (CVE-2022-22965)",
         "severity": "critical",
         "alternative": "spring-core >= 5.3.18"
+      },
+      {
+        "name": "spring-web",
+        "ecosystem": "maven",
+        "version_pattern": "^5\\.[0-2]\\..*",
+        "reason": "Multiple vulnerabilities including Spring4Shell",
+        "severity": "critical",
+        "alternative": "spring-web >= 5.3.18"
+      },
+      {
+        "name": "spring-webmvc",
+        "ecosystem": "maven",
+        "version_pattern": "^5\\.[0-2]\\..*",
+        "reason": "Path traversal and RCE vulnerabilities",
+        "severity": "critical",
+        "alternative": "spring-webmvc >= 5.3.18"
+      },
+      {
+        "name": "jackson-databind",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.([0-9]|1[0-2])\\..*",
+        "reason": "Deserialization vulnerabilities (CVE-2020-36518, CVE-2022-42003)",
+        "severity": "critical",
+        "alternative": "jackson-databind >= 2.13.4"
+      },
+      {
+        "name": "commons-collections",
+        "ecosystem": "maven",
+        "version_pattern": "^3\\..*",
+        "reason": "Remote code execution via deserialization (CVE-2015-6420)",
+        "severity": "critical",
+        "alternative": "commons-collections4 >= 4.0"
+      },
+      {
+        "name": "commons-beanutils",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\.[0-8]\\..*",
+        "reason": "Deserialization vulnerabilities",
+        "severity": "high",
+        "alternative": "commons-beanutils >= 1.9.4"
+      },
+      {
+        "name": "commons-fileupload",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\.[0-3]\\..*",
+        "reason": "DoS via unlimited file upload (CVE-2016-1000031)",
+        "severity": "high",
+        "alternative": "commons-fileupload >= 1.4"
+      },
+      {
+        "name": "commons-compress",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\.([0-9]|1[0-9])\\..*",
+        "reason": "Arbitrary file write (CVE-2021-35515, CVE-2021-36090)",
+        "severity": "high",
+        "alternative": "commons-compress >= 1.21"
+      },
+      {
+        "name": "struts",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.[0-4]\\..*",
+        "reason": "Multiple RCE vulnerabilities (including S2-045, S2-046)",
+        "severity": "critical",
+        "alternative": "struts >= 2.5.26"
+      },
+      {
+        "name": "struts2-core",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.[0-4]\\..*",
+        "reason": "Multiple RCE vulnerabilities",
+        "severity": "critical",
+        "alternative": "struts2-core >= 2.5.26"
+      },
+      {
+        "name": "jersey-server",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\..*|^2\\.([0-9]|1[0-9]|2[0-4])\\..*",
+        "reason": "Path traversal and security bypass",
+        "severity": "high",
+        "alternative": "jersey-server >= 2.25"
+      },
+      {
+        "name": "gson",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.[0-7]\\..*",
+        "reason": "DoS via deeply nested JSON (CVE-2022-25647)",
+        "severity": "medium",
+        "alternative": "gson >= 2.8.9"
+      },
+      {
+        "name": "snakeyaml",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\.([0-9]|1[0-9]|2[0-9])\\..*",
+        "reason": "Arbitrary code execution (CVE-2022-1471)",
+        "severity": "critical",
+        "alternative": "snakeyaml >= 1.31"
+      },
+      {
+        "name": "mysql-connector-java",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-4]\\..*|^5\\.[01]\\..*",
+        "reason": "Multiple vulnerabilities including MITM",
+        "severity": "high",
+        "alternative": "mysql-connector-java >= 8.0.28"
+      },
+      {
+        "name": "postgresql",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-8]\\..*|^9\\.[01]\\..*|^42\\.([01]|2\\.[0-9]$)",
+        "reason": "SQL injection and security bypass",
+        "severity": "high",
+        "alternative": "postgresql >= 42.2.25"
+      },
+      {
+        "name": "h2",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\..*",
+        "reason": "Remote code execution (CVE-2021-42392, CVE-2022-23221)",
+        "severity": "critical",
+        "alternative": "h2 >= 2.0.206"
+      },
+      {
+        "name": "netty",
+        "ecosystem": "maven",
+        "version_pattern": "^3\\..*|^4\\.[0-9]\\..*|^4\\.1\\.[0-5][0-9]\\..*",
+        "reason": "HTTP request smuggling (CVE-2021-21290, CVE-2021-21295)",
+        "severity": "high",
+        "alternative": "netty >= 4.1.60"
+      },
+      {
+        "name": "tomcat-embed-core",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-7]\\..*|^8\\.5\\.[0-5][0-9]|^9\\.0\\.[0-3][0-9]",
+        "reason": "Multiple vulnerabilities including request smuggling",
+        "severity": "high",
+        "alternative": "tomcat-embed-core >= 9.0.45"
+      },
+      {
+        "name": "jetty-server",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-8]\\..*|^9\\.[0-3]\\..*",
+        "reason": "Path traversal and security bypass",
+        "severity": "high",
+        "alternative": "jetty-server >= 9.4.41"
+      },
+      {
+        "name": "okhttp",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-2]\\..*|^3\\.([0-9]|1[0-3])\\..*",
+        "reason": "Certificate validation bypass",
+        "severity": "high",
+        "alternative": "okhttp >= 3.14.9"
+      },
+      {
+        "name": "retrofit",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\..*",
+        "reason": "Security issues, use Retrofit 2",
+        "severity": "medium",
+        "alternative": "retrofit >= 2.9.0"
+      },
+      {
+        "name": "httpclient",
+        "ecosystem": "maven",
+        "version_pattern": "^[0-3]\\..*|^4\\.[0-4]\\..*",
+        "reason": "Multiple security issues including MITM",
+        "severity": "high",
+        "alternative": "httpclient >= 4.5.13"
+      },
+      {
+        "name": "guava",
+        "ecosystem": "maven",
+        "version_pattern": "^[1-9]\\..*|^1[0-9]\\..*|^2[0-4]\\..*",
+        "reason": "Temp directory hijacking (CVE-2020-8908)",
+        "severity": "medium",
+        "alternative": "guava >= 25.0"
+      },
+      {
+        "name": "xstream",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\.[0-3]\\..*|^1\\.4\\.[0-9]$|^1\\.4\\.1[0-6]",
+        "reason": "Remote code execution (CVE-2021-39139, CVE-2021-39140)",
+        "severity": "critical",
+        "alternative": "xstream >= 1.4.18"
+      },
+      {
+        "name": "velocity",
+        "ecosystem": "maven",
+        "version_pattern": "^1\\..*",
+        "reason": "Template injection vulnerabilities",
+        "severity": "high",
+        "alternative": "velocity-engine-core >= 2.3"
+      },
+      {
+        "name": "freemarker",
+        "ecosystem": "maven",
+        "version_pattern": "^2\\.[0-2]\\..*",
+        "reason": "Template injection (CVE-2016-6814)",
+        "severity": "high",
+        "alternative": "freemarker >= 2.3.30"
       },
       {
         "name": "flask",

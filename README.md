@@ -1,10 +1,10 @@
 # Linux Security Scanner
 
-This repository contains the **confrisk** security assessment framework.
+This repository contains the **confrisk** security assessment framework with specialized dependency scanners.
 
 ## What is confrisk?
 
-**confrisk** is a generic, config-driven security assessment framework for Linux systems that:
+**confrisk** is a generic, config-driven security assessment framework for Linux systems and application dependencies that:
 
 - 🔍 Scans system configurations, dependencies, and network exposure
 - 📊 Scores findings using contextual risk assessment (not just severity)
@@ -12,6 +12,12 @@ This repository contains the **confrisk** security assessment framework.
 - 📝 Generates detailed HTML reports with explainable scoring
 - 🔌 Integrates external scanners without code changes
 - ⚙️ Fully configurable via JSON files
+
+## Tools Included
+
+- **confrisk** - Full Linux system security assessment
+- **confrisk-npm** - NPM dependency vulnerability scanner (50+ vulnerable packages detected)
+- **confrisk-gradle** - Gradle/Maven dependency scanner (30+ Java vulnerabilities detected)
 
 ## Quick Start
 
@@ -31,10 +37,15 @@ xdg-open report.html  # Linux
 
 ## Documentation
 
-- **[confrisk/README.md](confrisk/README.md)** — Main documentation
-- **[confrisk/CONFIG_SYSTEM.md](confrisk/CONFIG_SYSTEM.md)** — Configuration system (NEW!)
-- **[confrisk/CONFIG_QUICKSTART.md](confrisk/CONFIG_QUICKSTART.md)** — Quick start guide
-- **[confrisk/DEMO_RESULTS.md](confrisk/DEMO_RESULTS.md)** — Demo execution results
+### Core System
+- **[confrisk/README.md](docs/README.md)** — Main documentation
+- **[confrisk/CONFIG_SYSTEM.md](docs/CONFIG_SYSTEM.md)** — Configuration system
+- **[confrisk/CONFIG_QUICKSTART.md](docs/CONFIG_QUICKSTART.md)** — Quick start guide
+- **[confrisk/DEMO_RESULTS.md](docs/DEMO_RESULTS.md)** — Demo execution results
+
+### Dependency Scanners
+- **[GRADLE_SCANNER.md](docs/GRADLE_SCANNER.md)** — Gradle dependency scanner (NEW!)
+- **[NPM_SCANNER_SUMMARY.md](docs/NPM_SCANNER_SUMMARY.md)** — NPM scanner details
 
 ## Features
 

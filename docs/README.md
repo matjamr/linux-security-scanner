@@ -124,7 +124,7 @@ A complete demo is available in the `demo/` directory, featuring:
 - Multiple security misconfigurations
 - Side-by-side comparison of different asset profiles
 
-See [demo/README.md](demo/README.md) for instructions.
+See [demo/README.md](../confrisk/demo/README.md) for instructions.
 
 ## Permissions
 

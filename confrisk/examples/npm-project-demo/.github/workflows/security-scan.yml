@@ -74,11 +74,11 @@ jobs:
 
             const comment = `## 🔒 Security Scan Results
 
-            - 🔴 Critical: ${critical}
-            - 🟠 High: ${high}
-            - 🟡 Medium: ${medium}
+            - Critical: ${critical}
+            - High: ${high}
+            - Medium: ${medium}
 
-            ${critical + high > 0 ? '❌ Action required: Fix critical/high vulnerabilities' : '✅ No critical/high vulnerabilities found'}
+            ${critical + high > 0 ? 'Action required: Fix critical/high vulnerabilities' : 'No critical/high vulnerabilities found'}
 
             <details>
             <summary>View full report</summary>

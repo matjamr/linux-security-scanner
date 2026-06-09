@@ -3,7 +3,22 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Environment variable that points to the confrisk configuration directory.
+///
+/// This is the single source of truth for where the scanner (npm, gradle, and
+/// any future generic ecosystem) looks for its JSON rules, checks, plugins and
+/// scoring definitions. Set it once and every binary picks it up:
+///
+/// ```sh
+/// export CONFRISK_CONFIG_DIR=/etc/confrisk
+/// ```
+pub const CONFIG_DIR_ENV: &str = "CONFRISK_CONFIG_DIR";
+
+/// A marker file that must exist inside a directory for it to be considered a
+/// valid confrisk config root. Used when probing the standard fallback paths.
+const CONFIG_MARKER: &str = "categories.json";
 
 /// Category definition
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -247,6 +262,102 @@ pub struct Config {
 }
 
 impl Config {
+    /// Resolve the configuration directory that all scanners should read from.
+    ///
+    /// Resolution order (first match wins):
+    ///   1. `explicit` — an explicit override (e.g. a CLI `--config` flag).
+    ///      Used verbatim; an error is returned if it is not a valid config dir.
+    ///   2. `$CONFRISK_CONFIG_DIR` — the canonical environment variable.
+    ///      Used verbatim; an error is returned if it is not a valid config dir.
+    ///   3. Standard Linux locations, probed in order, first existing wins:
+    ///        - `$XDG_CONFIG_HOME/confrisk`
+    ///        - `$HOME/.config/confrisk`
+    ///        - `/etc/confrisk`
+    ///        - `/usr/local/share/confrisk/config`
+    ///        - `/usr/share/confrisk/config`
+    ///   4. `./config` — development fallback (current working directory).
+    ///
+    /// The intent is that operators set `CONFRISK_CONFIG_DIR` once and every
+    /// ecosystem scanner (npm, gradle, generic) reads from the same place.
+    pub fn resolve_dir(explicit: Option<&str>) -> Result<String, String> {
+        // 1. Explicit override (CLI flag). Honor it strictly so typos surface.
+        if let Some(dir) = explicit {
+            if Self::is_config_dir(dir) {
+                return Ok(dir.to_string());
+            }
+            return Err(format!(
+                "config directory '{}' (from --config) does not contain {}",
+                dir, CONFIG_MARKER
+            ));
+        }
+
+        // 2. The canonical environment variable. Honor it strictly too.
+        if let Ok(dir) = std::env::var(CONFIG_DIR_ENV) {
+            if !dir.is_empty() {
+                if Self::is_config_dir(&dir) {
+                    return Ok(dir);
+                }
+                return Err(format!(
+                    "{}='{}' does not contain {} — set it to a valid confrisk config directory",
+                    CONFIG_DIR_ENV, dir, CONFIG_MARKER
+                ));
+            }
+        }
+
+        // 3. Standard Linux locations.
+        for candidate in Self::standard_dirs() {
+            if Self::is_config_dir(&candidate) {
+                return Ok(candidate.to_string_lossy().into_owned());
+            }
+        }
+
+        // 4. Development fallback.
+        if Self::is_config_dir("config") {
+            return Ok("config".to_string());
+        }
+
+        Err(format!(
+            "could not locate a confrisk config directory. Set {} to the directory \
+             containing {} (e.g. /etc/confrisk), or pass --config <PATH>.",
+            CONFIG_DIR_ENV, CONFIG_MARKER
+        ))
+    }
+
+    /// Load configuration using [`Config::resolve_dir`] to locate the directory.
+    ///
+    /// This is the entry point every binary should use so that the
+    /// `CONFRISK_CONFIG_DIR` environment variable is honored uniformly.
+    pub fn load_resolved(explicit: Option<&str>) -> Result<Self, String> {
+        let dir = Self::resolve_dir(explicit)?;
+        Self::load(&dir)
+    }
+
+    /// The ordered list of standard config locations probed on Linux.
+    fn standard_dirs() -> Vec<PathBuf> {
+        let mut dirs = Vec::new();
+
+        if let Ok(xdg) = std::env::var("XDG_CONFIG_HOME") {
+            if !xdg.is_empty() {
+                dirs.push(Path::new(&xdg).join("confrisk"));
+            }
+        }
+        if let Ok(home) = std::env::var("HOME") {
+            if !home.is_empty() {
+                dirs.push(Path::new(&home).join(".config").join("confrisk"));
+            }
+        }
+        dirs.push(PathBuf::from("/etc/confrisk"));
+        dirs.push(PathBuf::from("/usr/local/share/confrisk/config"));
+        dirs.push(PathBuf::from("/usr/share/confrisk/config"));
+
+        dirs
+    }
+
+    /// A directory is a valid config root if it exists and holds the marker file.
+    fn is_config_dir<P: AsRef<Path>>(dir: P) -> bool {
+        dir.as_ref().join(CONFIG_MARKER).is_file()
+    }
+
     /// Load all configuration from the config directory
     pub fn load(config_dir: &str) -> Result<Self, String> {
         let config_path = Path::new(config_dir);
@@ -339,5 +450,32 @@ impl Config {
         self.scoring.effort_multipliers.get(effort)
             .copied()
             .unwrap_or(2.0)
+    }
+}
+
+#[cfg(test)]
+mod resolve_tests {
+    use super::*;
+
+    /// `--config` takes precedence and is honored verbatim when valid.
+    #[test]
+    fn explicit_flag_wins() {
+        // The repo's own ./config is a valid directory when tests run from the crate root.
+        let dir = Config::resolve_dir(Some("config")).expect("config/ should resolve");
+        assert_eq!(dir, "config");
+    }
+
+    /// An explicit but invalid `--config` path fails loudly instead of falling through.
+    #[test]
+    fn invalid_explicit_flag_errors() {
+        let err = Config::resolve_dir(Some("/definitely/not/here")).unwrap_err();
+        assert!(err.contains("--config"));
+    }
+
+    /// The marker-file check only accepts directories that actually hold config.
+    #[test]
+    fn marker_detection() {
+        assert!(Config::is_config_dir("config"));
+        assert!(!Config::is_config_dir("/tmp"));
     }
 }
