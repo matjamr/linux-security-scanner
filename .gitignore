@@ -54,8 +54,14 @@ confrisk/*.snap
 confrisk/*.tar.gz
 confrisk/*.tar.gz.sha256
 
-# NPM demo project
-confrisk/examples/npm-project-demo/node_modules/
+# Node modules — every demo / npm package (matches at any depth)
+node_modules/
+
+# Compiled binary bundled into the npm wrapper package by prepare-npm-package.sh
+confrisk/npm-package/confrisk-npm
+
+# Scratch / ad-hoc test fixtures at repo root
+/test-vulnerable-package.json
 
 # Generated reports
 confrisk/*.html
