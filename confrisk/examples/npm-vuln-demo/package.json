@@ -1,0 +1,14 @@
+{
+  "name": "vuln-demo",
+  "version": "1.0.0",
+  "description": "Przykładowy projekt z pakietami z blocklisty (do raportu confrisk-npm)",
+  "dependencies": {
+    "express": "^4.18.0",
+    "event-stream": "3.3.6",
+    "colors": "1.4.44",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "node-uuid": "^1.4.8"
+  }
+}

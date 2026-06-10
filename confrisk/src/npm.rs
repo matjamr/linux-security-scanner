@@ -300,7 +300,7 @@ impl NpmScanner {
                     exposure: Exposure::InternetFacing,
                     confidence: 0.95,
                     effort: 2.0,
-                    remediation: "Run 'npm audit fix' to automatically fix vulnerabilities".to_string(),
+                    remediation: "Run: npm audit fix".to_string(),
                     evidence: format!(
                         "Critical: {}, High: {}, Moderate: {}, Low: {}",
                         audit.metadata.vulnerabilities.critical,
@@ -347,7 +347,7 @@ impl NpmScanner {
                     remediation: if vuln.fix_available.is_boolean() && !vuln.fix_available.as_bool().unwrap_or(false) {
                         format!("No automatic fix available. Check for manual update of {}", pkg_name)
                     } else {
-                        "Run 'npm audit fix' or update package manually".to_string()
+                        "Run: npm audit fix".to_string()
                     },
                     evidence: format!(
                         "Package: {}, Range: {}, Severity: {}",
@@ -386,7 +386,7 @@ impl NpmScanner {
                         exposure: Exposure::Local,
                         confidence: 0.8,
                         effort: 3.0,
-                        remediation: "Run 'npm outdated' to see details, then 'npm update'".to_string(),
+                        remediation: "Run: npm update".to_string(),
                         evidence: format!("{} packages need updating", outdated.len()),
                         passed: false,
                     });

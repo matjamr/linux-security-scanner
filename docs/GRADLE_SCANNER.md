@@ -213,6 +213,35 @@ cargo run --bin confrisk-gradle -- --path examples/gradle-project-demo --config 
 | CI/CD Ready | ✅ Yes | ⚠️ Limited | ⚠️ Limited |
 | Custom Rules | ✅ Easy JSON | ⚠️ Complex | ⚠️ Complex |
 
+## Bramka w buildzie Gradle (Opcja A) — blokowanie buildu
+
+Aby `gradle build` / `./gradlew clean install` **przerywał build** na zablokowanych
+zależnościach, wklej do `build.gradle` task `Exec` i wepnij go w cykl życia:
+
+```groovy
+def confriskScan = tasks.register('confriskScan', Exec) {
+    group = 'verification'
+    description = 'Bramka bezpieczeństwa: confrisk-gradle --fail-on high'
+    workingDir = projectDir
+    commandLine 'confrisk-gradle', '--path', projectDir.toString(),
+                '--asset', 'production', '--fail-on', 'high', '--exit-code'
+    // Exec przerywa build, gdy proces zwróci kod != 0.
+}
+tasks.matching {
+    it.name in ['compileJava','assemble','build','check',
+                'install','publishToMavenLocal','publish','bootJar','jar']
+}.configureEach { dependsOn confriskScan }
+```
+
+Wymagania: `confrisk-gradle` na PATH (`cargo install --path <repo>/confrisk`) oraz
+konfiguracja widoczna dla skanera (`export CONFRISK_CONFIG_DIR=<repo>/confrisk/config`,
+lub `~/.config/confrisk`, lub katalog `config/` w projekcie). Działający przykład:
+`examples/gradle-project-demo/`.
+
+> **Ograniczenie:** confrisk parsuje `build.gradle`, więc bramka łapie zależności
+> **zadeklarowane wprost** — nie tranzytywne. Dla tranzytywnych dołóż reguły
+> `resolutionStrategy.eachDependency { … }` (Opcja B).
+
 ## Limitations
 
 - Does not resolve transitive dependencies (scans build files only)

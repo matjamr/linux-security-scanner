@@ -67,7 +67,7 @@ flowchart TB
 | `npm` | `src/npm.rs` | Implementacja `Scanner` dla npm (blocklist, `npm audit`, pakiety nieaktualne). |
 | `gradle` | `src/gradle.rs` | Implementacja `Scanner` dla Gradle (parsowanie `build.gradle`/`.kts`). |
 | `checks` | `src/checks.rs` | Wbudowane kontrole konfiguracji systemu Linux. |
-| `report` | `src/report.rs` | Generowanie raportu HTML dla skanera systemowego. |
+| `report` | `src/report.rs` | Generowanie raportu HTML (wspólne dla wszystkich skanerów) + przyciski auto-fix. |
 | binarki | `src/main.rs`, `src/bin/*` | Punkty wejścia procesów. |
 
 ---
@@ -297,7 +297,7 @@ sequenceDiagram
 | Element | Rola |
 |---------|------|
 | `ToolInfo` | Statyczne metadane binarki (nazwa, tytuł, rodzaj projektu). Stałe `ToolInfo::NPM`, `ToolInfo::GRADLE`. |
-| `OutputFormat` | Enum `Text` / `Json` (zamiast luźnych stringów). |
+| `OutputFormat` | Enum `Text` / `Json` / `Html` (zamiast luźnych stringów). `Html` zapisuje raport przez `report::render_project` do pliku `--out`. |
 | `FailLevel` | Próg `--fail-on` (`Critical`/`High`/`Medium`/`Low`) → `threshold_risk()`. |
 | `ScanArgs` | Sparsowane, zwalidowane argumenty. |
 | `run<S: Scanner>(info, build)` | Pełny cykl życia binarki; **nigdy nie wraca** (kończy proces). |
@@ -375,6 +375,39 @@ flowchart LR
 
 `checks.rs` zawiera kontrole konfiguracji (m.in. logowanie roota po SSH, uprawnienia plików,
 hardening jądra). `report.rs` buduje samodzielny dokument HTML z wynikami i objaśnieniem scoringu.
+
+### 7.1. Raport HTML współdzielony i auto-fix
+
+`report.rs` jest używany przez **wszystkie trzy skanery**, nie tylko systemowy:
+
+- skaner systemowy woła `report::render(...)` — etykieta nagłówka „Host";
+- `confrisk-npm` / `confrisk-gradle` z `--format html` wołają (przez `cli.rs`)
+  `report::render_project(...)` — etykieta „Projekt"; wewnętrznie obie funkcje delegują do
+  wspólnego `render_inner(...)`.
+
+Raport jest jasny i samodzielny (CSS inline, bez JS-frameworków), findingi to rozwijane sekcje
+`<details>` sortowane po priorytecie.
+
+**Auto-fix.** Funkcja `fix_command(remediation)` wykrywa naprawialne findingi po konwencji
+`Run: <komenda>` w polu remediacji (ucina prozę po `;` i bierze pierwszy wariant przed ` or `).
+Dla takich findingów raport pokazuje:
+
+- przycisk **„Napraw automatycznie"** — kopiuje komendę do schowka (z fallbackiem `execCommand`);
+- górny przycisk **„Pobierz skrypt naprawczy (fix.sh)"** — pakuje wszystkie komendy w pobierany skrypt.
+
+Przeglądarka nie wykonuje zmian w systemie (sandbox) — przyciski kopiują/pobierają polecenia do
+uruchomienia w terminalu. `confrisk-gradle` celowo nie ma przycisków (naprawy to edycje
+`build.gradle`, nie jednolinijkowe komendy).
+
+```mermaid
+flowchart LR
+    A[confrisk] --> R[report::render → Host]
+    B[confrisk-npm --format html] --> RP[report::render_project → Projekt]
+    C[confrisk-gradle --format html] --> RP
+    R --> RI[render_inner]
+    RP --> RI
+    RI --> H[(samodzielny HTML<br/>+ przyciski auto-fix)]
+```
 
 ---
 

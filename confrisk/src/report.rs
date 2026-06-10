@@ -10,6 +10,32 @@ fn esc(s: &str) -> String {
         .replace('"', "&quot;")
 }
 
+/// Extract a runnable shell command from a remediation string, if one is present.
+///
+/// The check definitions use a `Run: <command>` convention for actionable fixes
+/// (e.g. `Run: chmod 644 /etc/passwd`). We treat those as auto-fixable and pull
+/// out the first concrete command, stopping at prose separators (`;`, ` or `).
+/// Remediations without that convention (manual edits, `N/A`, …) return `None`.
+fn fix_command(remediation: &str) -> Option<String> {
+    let rest = remediation.trim().strip_prefix("Run:")?.trim_start();
+    // Keep only the first command — drop trailing prose like
+    // "; add ... to /etc/sysctl.conf" or " or chmod 600 ...".
+    let cmd = rest.split(';').next().unwrap_or(rest);
+    let cmd = cmd.split(" or ").next().unwrap_or(cmd).trim();
+    if cmd.is_empty() {
+        None
+    } else {
+        Some(cmd.to_string())
+    }
+}
+
+/// Whether a remediation describes an actionable step (runnable command or a
+/// manual instruction). Empty or `N/A` remediations are not actionable.
+fn is_actionable(remediation: &str) -> bool {
+    let r = remediation.trim();
+    !r.is_empty() && !r.starts_with("N/A")
+}
+
 /// Polish label for a risk band / passed state
 fn band_label(band: &str) -> &'static str {
     match band {
@@ -22,11 +48,33 @@ fn band_label(band: &str) -> &'static str {
     }
 }
 
-/// Generate complete HTML report
+/// Generate an HTML report for a host scan (system scanner). Labels the subject "Host".
 pub fn render(
     findings: &[ScoredFinding],
     ctx: AssetCriticality,
     hostname: &str,
+    scan_date: &str,
+) -> String {
+    render_inner(findings, ctx, "Host", hostname, scan_date)
+}
+
+/// Generate an HTML report for a project scan (npm/gradle). Labels the subject "Projekt".
+pub fn render_project(
+    findings: &[ScoredFinding],
+    ctx: AssetCriticality,
+    project: &str,
+    scan_date: &str,
+) -> String {
+    render_inner(findings, ctx, "Projekt", project, scan_date)
+}
+
+/// Generate the complete HTML report. `subject_label`/`subject` fill the meta line
+/// (e.g. "Host macbook" or "Projekt ./app").
+fn render_inner(
+    findings: &[ScoredFinding],
+    ctx: AssetCriticality,
+    subject_label: &str,
+    subject: &str,
     scan_date: &str,
 ) -> String {
     let total = findings.len();
@@ -73,13 +121,28 @@ pub fn render(
         .map(|sf| render_finding(sf, ctx, !sf.finding.passed))
         .collect();
 
+    // Count failed findings that have an actionable remediation (a runnable
+    // command OR a manual step). The fix.sh script covers all of them.
+    let actionable_count = findings
+        .iter()
+        .filter(|sf| !sf.finding.passed && is_actionable(&sf.finding.remediation))
+        .count();
+    let fix_all_button = if actionable_count > 0 {
+        format!(
+            r#"<div class="fixall-row"><button id="fixall">Pobierz skrypt naprawczy (fix.sh) — {n}</button><span class="note-text">Wszystkie kroki naprawcze: gotowe komendy + kroki ręczne jako komentarze. Przeglądarka nie zmienia systemu.</span></div>"#,
+            n = actionable_count
+        )
+    } else {
+        String::new()
+    };
+
     format!(
         r#"<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raport bezpieczeństwa — {hostname}</title>
+    <title>Raport bezpieczeństwa — {subject}</title>
     <style>
         :root {{
             --bg: #f5f6f7;
@@ -168,6 +231,23 @@ pub fn render(
         details.note summary {{ cursor: pointer; }}
         details.note code {{ font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }}
 
+        button.fix, #fixall {{
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #cdd0d5;
+            background: #fff;
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }}
+        button.fix {{ border-color: #bcd9c4; color: #256a2a; }}
+        button.fix:hover, #fixall:hover {{ background: #f0f1f3; }}
+        .fix-row {{ margin-top: 14px; display: flex; align-items: center; gap: 10px; }}
+        .fix-hint {{ font-size: 12px; color: #2e7d32; }}
+        .fixall-row {{ display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }}
+        .fixall-row .note-text {{ font-size: 12px; color: var(--muted); }}
+
         footer {{ margin-top: 36px; color: var(--muted); font-size: 13px; }}
     </style>
 </head>
@@ -175,7 +255,7 @@ pub fn render(
     <div class="wrap">
         <header>
             <h1>Raport bezpieczeństwa</h1>
-            <p class="meta">Host <b>{hostname}</b> &middot; profil zasobu <b>{asset_label}</b> &middot; data {scan_date} &middot; kontroli: <b>{total}</b></p>
+            <p class="meta">{subject_label} <b>{subject}</b> &middot; profil zasobu <b>{asset_label}</b> &middot; data {scan_date} &middot; kontroli: <b>{total}</b></p>
         </header>
 
         <div class="panel">
@@ -194,6 +274,7 @@ pub fn render(
         </div>
 
         <h2>Wyniki kontroli</h2>
+        {fix_all_button}
         {findings_html}
 
         <details class="note">
@@ -203,9 +284,63 @@ pub fn render(
 
         <footer>confrisk — ocena konfiguracji systemu</footer>
     </div>
+    <script>
+        function copyText(t) {{
+            return new Promise(function (res) {{
+                function fallback() {{
+                    var ta = document.createElement('textarea');
+                    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.focus(); ta.select();
+                    try {{ document.execCommand('copy'); }} catch (e) {{}}
+                    document.body.removeChild(ta); res();
+                }}
+                if (navigator.clipboard && navigator.clipboard.writeText) {{
+                    navigator.clipboard.writeText(t).then(function () {{ res(); }}, fallback);
+                }} else {{
+                    fallback();
+                }}
+            }});
+        }}
+        document.querySelectorAll('button.fix').forEach(function (b) {{
+            b.addEventListener('click', function () {{
+                copyText(b.getAttribute('data-cmd')).then(function () {{
+                    var h = b.parentElement.querySelector('.fix-hint');
+                    if (h) {{ h.textContent = 'Skopiowano — wklej w terminalu'; setTimeout(function () {{ h.textContent = ''; }}, 2500); }}
+                }});
+            }});
+        }});
+        var fa = document.getElementById('fixall');
+        if (fa) {{
+            fa.addEventListener('click', function () {{
+                var lines = [
+                    '#!/bin/sh',
+                    '# Skrypt naprawczy wygenerowany przez confrisk.',
+                    '# PRZEJRZYJ przed uruchomieniem — część poleceń wymaga uprawnień root (sudo).',
+                    '# Wiersze komentarza (#) to kroki ręczne — brak bezpiecznej komendy jednolinijkowej.',
+                    ''
+                ];
+                document.querySelectorAll('details.finding[data-rem]').forEach(function (d) {{
+                    lines.push('# [' + (d.getAttribute('data-id') || '') + '] ' + (d.getAttribute('data-title') || ''));
+                    var cmd = d.getAttribute('data-cmd');
+                    if (cmd) {{
+                        lines.push(cmd);
+                    }} else {{
+                        lines.push('# RĘCZNIE: ' + d.getAttribute('data-rem'));
+                    }}
+                    lines.push('');
+                }});
+                var blob = new Blob([lines.join('\n')], {{ type: 'text/x-shellscript' }});
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(blob); a.download = 'fix.sh';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }});
+        }}
+    </script>
 </body>
 </html>"#,
-        hostname = esc(hostname),
+        subject_label = esc(subject_label),
+        subject = esc(subject),
         asset_label = esc(ctx.label()),
         scan_date = esc(scan_date),
         total = total,
@@ -218,6 +353,7 @@ pub fn render(
         cumulative_risk = cumulative_risk,
         posture = posture,
         posture_color = posture_color,
+        fix_all_button = fix_all_button,
         findings_html = findings_html,
     )
 }
@@ -236,8 +372,39 @@ fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> Stri
         )
     };
 
+    // Auto-fix button — only for failed findings that expose a runnable command.
+    let fix_button = if sf.finding.passed {
+        String::new()
+    } else {
+        match fix_command(&sf.finding.remediation) {
+            Some(cmd) => format!(
+                r#"<div class="fix-row"><button class="fix" data-cmd="{}">Napraw automatycznie</button><span class="fix-hint"></span></div>"#,
+                esc(&cmd)
+            ),
+            None => String::new(),
+        }
+    };
+
+    // Data attributes that let the top-level "fix.sh" script include EVERY
+    // failed finding: data-cmd for runnable steps, data-rem for manual ones.
+    let data_attrs = if !sf.finding.passed && is_actionable(&sf.finding.remediation) {
+        let cmd_attr = match fix_command(&sf.finding.remediation) {
+            Some(cmd) => format!(r#" data-cmd="{}""#, esc(&cmd)),
+            None => String::new(),
+        };
+        format!(
+            r#" data-id="{}" data-title="{}" data-rem="{}"{}"#,
+            esc(&sf.finding.id),
+            esc(&sf.finding.title),
+            esc(sf.finding.remediation.trim()),
+            cmd_attr
+        )
+    } else {
+        String::new()
+    };
+
     format!(
-        r#"<details class="finding"{open_attr}>
+        r#"<details class="finding"{data_attrs}{open_attr}>
     <summary>
         <span class="chev">&#9656;</span>
         <span class="tag {band}">{band_label}</span>
@@ -253,10 +420,12 @@ fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> Stri
             <dt>Nakład naprawy</dt><dd>{effort:.1} / 5</dd>
             <dt>Rekomendacja</dt><dd>{remediation}</dd>
         </dl>
+        {fix_button}
     </div>
 </details>
 "#,
         open_attr = open_attr,
+        data_attrs = data_attrs,
         band = band,
         band_label = band_label(band),
         id = esc(&sf.finding.id),
@@ -265,7 +434,40 @@ fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> Stri
         description = esc(&sf.finding.description),
         evidence = esc(&sf.finding.evidence),
         score_section = score_section,
+        fix_button = fix_button,
         effort = sf.finding.effort,
         remediation = esc(&sf.finding.remediation),
     )
+}
+
+#[cfg(test)]
+mod fix_tests {
+    use super::fix_command;
+
+    #[test]
+    fn extracts_simple_command() {
+        assert_eq!(fix_command("Run: chmod 644 /etc/passwd").as_deref(), Some("chmod 644 /etc/passwd"));
+    }
+
+    #[test]
+    fn takes_first_of_alternatives() {
+        assert_eq!(
+            fix_command("Run: chmod 640 /etc/shadow or chmod 600 /etc/shadow").as_deref(),
+            Some("chmod 640 /etc/shadow")
+        );
+    }
+
+    #[test]
+    fn stops_before_prose_after_semicolon() {
+        assert_eq!(
+            fix_command("Run: echo 2 | sudo tee /proc/sys/kernel/randomize_va_space; add '...' to /etc/sysctl.conf").as_deref(),
+            Some("echo 2 | sudo tee /proc/sys/kernel/randomize_va_space")
+        );
+    }
+
+    #[test]
+    fn none_without_run_prefix() {
+        assert_eq!(fix_command("Set 'PermitRootLogin no' in /etc/ssh/sshd_config"), None);
+        assert_eq!(fix_command("N/A"), None);
+    }
 }

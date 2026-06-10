@@ -25,3 +25,41 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+// Bramka bezpieczeństwa confrisk (Opcja A)
+// Uruchamia confrisk-gradle i PRZERYWA build, gdy znajdzie zależność o ryzyku
+// >= próg (--fail-on high). Dzięki temu np. `gradle build` / `./gradlew install`
+// kończy się błędem, jeśli w build.gradle są zablokowane / podatne biblioteki.
+//
+// Wymagania:
+//   1. confrisk-gradle na PATH (np. `cargo install --path <repo>/confrisk`)
+//   2. Konfiguracja widoczna dla skanera — jedno z:
+//        export CONFRISK_CONFIG_DIR=<repo>/confrisk/config     (dziedziczone przez Gradle)
+//        lub skopiuj config do ~/.config/confrisk / /etc/confrisk
+//        lub umieść katalog `config/` w katalogu projektu
+//
+// Uwaga: confrisk-gradle parsuje build.gradle, więc łapie zależności
+// ZADEKLAROWANE WPROST (nie tranzytywne). Dla tranzytywnych użyj reguł
+// resolutionStrategy (Opcja B).
+// ──────────────────────────────────────────────────────────────────────────
+def confriskScan = tasks.register('confriskScan', Exec) {
+    group = 'verification'
+    description = 'Bramka bezpieczeństwa: skan zależności confrisk-gradle (--fail-on high)'
+    workingDir = projectDir
+    commandLine 'confrisk-gradle',
+                '--path', projectDir.toString(),
+                '--asset', 'production',
+                '--fail-on', 'high',
+                '--exit-code'
+    // Exec domyślnie przerywa build, gdy proces zwróci kod != 0.
+}
+
+// Wepnij bramkę przed kompilacją i przed typowymi zadaniami build/install
+// (configureEach dotknie tylko tych zadań, które realnie istnieją w projekcie).
+tasks.matching {
+    it.name in ['compileJava', 'assemble', 'build', 'check',
+                'install', 'publishToMavenLocal', 'publish', 'bootJar', 'jar']
+}.configureEach {
+    dependsOn confriskScan
+}

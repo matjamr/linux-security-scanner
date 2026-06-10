@@ -57,6 +57,8 @@ impl ToolInfo {
 pub enum OutputFormat {
     Text,
     Json,
+    /// Self-contained HTML report written to `--out` (same template as the system scanner).
+    Html,
 }
 
 /// Severity threshold at which a scan fails the build (`--fail-on`).
@@ -100,6 +102,8 @@ pub struct ScanArgs {
     pub config_path: Option<String>,
     pub fail_on: FailLevel,
     pub exit_on_vuln: bool,
+    /// Destination file for the HTML report (used only when `format` is `Html`).
+    pub out_path: String,
 }
 
 /// Outcome of parsing arguments.
@@ -151,6 +155,21 @@ pub fn run<S: Scanner>(info: ToolInfo, build: impl FnOnce(Config, String) -> S) 
     match parsed.format {
         OutputFormat::Json => render_json(&scored),
         OutputFormat::Text => render_text(info, &scored, &parsed.project_path),
+        OutputFormat::Html => {
+            let html = crate::report::render_project(
+                &scored,
+                parsed.asset,
+                &parsed.project_path,
+                &get_date(),
+            );
+            match std::fs::write(&parsed.out_path, html) {
+                Ok(_) => println!("Raport HTML zapisany: {}", parsed.out_path),
+                Err(e) => {
+                    eprintln!("Error: failed to write report to '{}': {}", parsed.out_path, e);
+                    process::exit(1);
+                }
+            }
+        }
     }
 
     if parsed.exit_on_vuln && exit_code(&scored, parsed.fail_on) > 0 {
@@ -168,6 +187,7 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
     let mut config_path: Option<String> = None;
     let mut fail_on = FailLevel::High;
     let mut exit_on_vuln = false;
+    let mut out_path = "report.html".to_string();
 
     // Pull the value following a flag, erroring with a consistent message.
     let value_at = |i: usize, flag: &str| -> Result<String, String> {
@@ -192,12 +212,13 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
                 format = match v.as_str() {
                     "text" => OutputFormat::Text,
                     "json" => OutputFormat::Json,
-                    "html" => {
-                        eprintln!("HTML output not yet implemented; using text.");
-                        OutputFormat::Text
-                    }
-                    _ => return Err(format!("invalid format '{}'. Valid: text, json", v)),
+                    "html" => OutputFormat::Html,
+                    _ => return Err(format!("invalid format '{}'. Valid: text, json, html", v)),
                 };
+                i += 2;
+            }
+            "--out" | "-o" => {
+                out_path = value_at(i, "--out")?;
                 i += 2;
             }
             "--config" | "-c" => {
@@ -237,7 +258,20 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
         config_path,
         fail_on,
         exit_on_vuln,
+        out_path,
     }))
+}
+
+/// Current date/time as a display string, via the system `date` command.
+fn get_date() -> String {
+    if let Ok(out) = process::Command::new("date").arg("+%Y-%m-%d %H:%M:%S").output() {
+        if out.status.success() {
+            if let Ok(s) = String::from_utf8(out.stdout) {
+                return s.trim().to_string();
+            }
+        }
+    }
+    "—".to_string()
 }
 
 fn print_usage(info: ToolInfo) {
@@ -250,7 +284,8 @@ fn print_usage(info: ToolInfo) {
     println!("    -p, --path <PATH>        Path to {} (default: .)", info.project_kind);
     println!("    -a, --asset <PROFILE>    Asset criticality: dev, internal, production, crown-jewel");
     println!("                             (default: production)");
-    println!("    -f, --format <FORMAT>    Output format: text, json (default: text)");
+    println!("    -f, --format <FORMAT>    Output format: text, json, html (default: text)");
+    println!("    -o, --out <FILE>         HTML report destination (default: report.html)");
     println!("    -c, --config <PATH>      Config directory path. Overrides ${}.", CONFIG_DIR_ENV);
     println!("    --fail-on <LEVEL>        Fail build on: critical, high, medium, low");
     println!("                             (default: high)");
@@ -268,6 +303,7 @@ fn print_usage(info: ToolInfo) {
     println!("    {} --path /path/to/project", info.bin);
     println!("    {} --fail-on high --exit-code", info.bin);
     println!("    {} --format json > results.json", info.bin);
+    println!("    {} --format html --out raport.html", info.bin);
     println!("    {} --asset dev", info.bin);
 }
 

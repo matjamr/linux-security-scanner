@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport bezpieczeństwa — examples/gradle-project-demo</title>
+    <style>
+        :root {
+            --bg: #f5f6f7;
+            --card: #ffffff;
+            --border: #e2e4e8;
+            --text: #20242a;
+            --muted: #6b7280;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+        }
+        .wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px 64px; }
+
+        header h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
+        .meta { color: var(--muted); font-size: 14px; margin: 0; }
+        .meta b { color: var(--text); font-weight: 600; }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-top: 20px;
+        }
+
+        .status { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .status .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+        .status .word { font-size: 17px; font-weight: 600; }
+        .status .sub { color: var(--muted); font-size: 14px; }
+
+        .counts { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+        .counts div { font-size: 14px; color: var(--muted); }
+        .counts b { display: block; font-size: 20px; color: var(--text); font-weight: 600; }
+
+        h2 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; }
+
+        details.finding {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        details.finding > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        details.finding > summary::-webkit-details-marker { display: none; }
+        summary .chev { color: var(--muted); transition: transform .15s; flex: none; }
+        details[open] summary .chev { transform: rotate(90deg); }
+        summary .title { font-weight: 600; flex: 1; }
+        summary .prio { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+        .tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex: none;
+        }
+        .tag.critical { background: #fbeae8; color: #b3261e; }
+        .tag.high     { background: #fdf0e6; color: #b54708; }
+        .tag.medium   { background: #fbf4e0; color: #8a6400; }
+        .tag.low      { background: #e8f0fb; color: #1f5fa8; }
+        .tag.info     { background: #eef0f2; color: #5b6470; }
+        .tag.passed   { background: #e7f3e8; color: #2e7d32; }
+
+        .body { padding: 0 14px 14px 14px; border-top: 1px solid var(--border); }
+        .body p.desc { margin: 12px 0 14px; }
+        dl { margin: 0; }
+        dt { color: var(--muted); font-size: 13px; margin-top: 12px; }
+        dd { margin: 3px 0 0; }
+        dd.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #374151; }
+
+        details.note { margin-top: 24px; color: var(--muted); font-size: 14px; }
+        details.note summary { cursor: pointer; }
+        details.note code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+
+        button.fix, #fixall {
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #cdd0d5;
+            background: #fff;
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        button.fix { border-color: #bcd9c4; color: #256a2a; }
+        button.fix:hover, #fixall:hover { background: #f0f1f3; }
+        .fix-row { margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+        .fix-hint { font-size: 12px; color: #2e7d32; }
+        .fixall-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
+        .fixall-row .note-text { font-size: 12px; color: var(--muted); }
+
+        footer { margin-top: 36px; color: var(--muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Raport bezpieczeństwa</h1>
+            <p class="meta">Projekt <b>examples/gradle-project-demo</b> &middot; profil zasobu <b>production</b> &middot; data 2026-06-10 19:44:23 &middot; kontroli: <b>5</b></p>
+        </header>
+
+        <div class="panel">
+            <div class="status">
+                <span class="dot" style="background:#b3261e"></span>
+                <span class="word">Zagrożony</span>
+                <span class="sub">— nieudanych kontroli 5 z 5, skumulowane ryzyko 68.1</span>
+            </div>
+            <div class="counts">
+                <div><b>5</b> krytyczne</div>
+                <div><b>0</b> wysokie</div>
+                <div><b>0</b> średnie</div>
+                <div><b>0</b> niskie</div>
+                <div><b>0</b> zaliczone</div>
+            </div>
+        </div>
+
+        <h2>Wyniki kontroli</h2>
+        <div class="fixall-row"><button id="fixall">Pobierz skrypt naprawczy (fix.sh) — 5</button><span class="note-text">Wszystkie kroki naprawcze: gotowe komendy + kroki ręczne jako komentarze. Przeglądarka nie zmienia systemu.</span></div>
+        <details class="finding" data-id="GRADLE-BLOCKED-LOG4J" data-title="Blocked dependency: log4j" data-rem="Replace 'org.apache.logging.log4j:log4j-core:2.14.1' with 'log4j &gt;= 2.17.1'. See: build.gradle" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Blocked dependency: log4j</span>
+        <span class="prio">priorytet 6.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Log4Shell vulnerability (CVE-2021-44228)</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">GRADLE-BLOCKED-LOG4J</dd>
+            <dt>Co wykryto</dt><dd>Found org.apache.logging.log4j:log4j-core:2.14.1 in build.gradle</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.99 (conf) = 13.61</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'org.apache.logging.log4j:log4j-core:2.14.1' with 'log4j &gt;= 2.17.1'. See: build.gradle</dd>
+        </dl>
+        
+    </div>
+</details>
+<details class="finding" data-id="GRADLE-BLOCKED-LOG4J_CORE" data-title="Blocked dependency: log4j-core" data-rem="Replace 'org.apache.logging.log4j:log4j-core:2.14.1' with 'log4j-core &gt;= 2.17.1'. See: build.gradle" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Blocked dependency: log4j-core</span>
+        <span class="prio">priorytet 6.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Log4Shell and related vulnerabilities (CVE-2021-44228, CVE-2021-45046)</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">GRADLE-BLOCKED-LOG4J_CORE</dd>
+            <dt>Co wykryto</dt><dd>Found org.apache.logging.log4j:log4j-core:2.14.1 in build.gradle</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.99 (conf) = 13.61</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'org.apache.logging.log4j:log4j-core:2.14.1' with 'log4j-core &gt;= 2.17.1'. See: build.gradle</dd>
+        </dl>
+        
+    </div>
+</details>
+<details class="finding" data-id="GRADLE-BLOCKED-SPRING_CORE" data-title="Blocked dependency: spring-core" data-rem="Replace 'org.springframework:spring-core:5.3.5' with 'spring-core &gt;= 5.3.18'. See: build.gradle" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Blocked dependency: spring-core</span>
+        <span class="prio">priorytet 6.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Spring4Shell vulnerability (CVE-2022-22965)</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">GRADLE-BLOCKED-SPRING_CORE</dd>
+            <dt>Co wykryto</dt><dd>Found org.springframework:spring-core:5.3.5 in build.gradle</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.99 (conf) = 13.61</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'org.springframework:spring-core:5.3.5' with 'spring-core &gt;= 5.3.18'. See: build.gradle</dd>
+        </dl>
+        
+    </div>
+</details>
+<details class="finding" data-id="GRADLE-BLOCKED-JACKSON_DATABIND" data-title="Blocked dependency: jackson-databind" data-rem="Replace 'com.fasterxml.jackson.core:jackson-databind:2.12.0' with 'jackson-databind &gt;= 2.13.4'. See: build.gradle" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Blocked dependency: jackson-databind</span>
+        <span class="prio">priorytet 6.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Deserialization vulnerabilities (CVE-2020-36518, CVE-2022-42003)</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">GRADLE-BLOCKED-JACKSON_DATABIND</dd>
+            <dt>Co wykryto</dt><dd>Found com.fasterxml.jackson.core:jackson-databind:2.12.0 in build.gradle</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.99 (conf) = 13.61</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'com.fasterxml.jackson.core:jackson-databind:2.12.0' with 'jackson-databind &gt;= 2.13.4'. See: build.gradle</dd>
+        </dl>
+        
+    </div>
+</details>
+<details class="finding" data-id="GRADLE-BLOCKED-COMMONS_COLLECTIONS" data-title="Blocked dependency: commons-collections" data-rem="Replace 'commons-collections:commons-collections:3.2.1' with 'commons-collections4 &gt;= 4.0'. See: build.gradle" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Blocked dependency: commons-collections</span>
+        <span class="prio">priorytet 6.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Remote code execution via deserialization (CVE-2015-6420)</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">GRADLE-BLOCKED-COMMONS_COLLECTIONS</dd>
+            <dt>Co wykryto</dt><dd>Found commons-collections:commons-collections:3.2.1 in build.gradle</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.99 (conf) = 13.61</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'commons-collections:commons-collections:3.2.1' with 'commons-collections4 &gt;= 4.0'. See: build.gradle</dd>
+        </dl>
+        
+    </div>
+</details>
+
+
+        <details class="note">
+            <summary>Jak liczone jest ryzyko?</summary>
+            <p>Ryzyko = dotkliwość &times; krytyczność zasobu &times; ekspozycja &times; pewność. Priorytet = ryzyko &divide; nakład naprawy. Wyniki są sortowane malejąco po priorytecie, a każdy zawiera rozbicie oceny na czynniki.</p>
+        </details>
+
+        <footer>confrisk — ocena konfiguracji systemu</footer>
+    </div>
+    <script>
+        function copyText(t) {
+            return new Promise(function (res) {
+                function fallback() {
+                    var ta = document.createElement('textarea');
+                    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.focus(); ta.select();
+                    try { document.execCommand('copy'); } catch (e) {}
+                    document.body.removeChild(ta); res();
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(t).then(function () { res(); }, fallback);
+                } else {
+                    fallback();
+                }
+            });
+        }
+        document.querySelectorAll('button.fix').forEach(function (b) {
+            b.addEventListener('click', function () {
+                copyText(b.getAttribute('data-cmd')).then(function () {
+                    var h = b.parentElement.querySelector('.fix-hint');
+                    if (h) { h.textContent = 'Skopiowano — wklej w terminalu'; setTimeout(function () { h.textContent = ''; }, 2500); }
+                });
+            });
+        });
+        var fa = document.getElementById('fixall');
+        if (fa) {
+            fa.addEventListener('click', function () {
+                var lines = [
+                    '#!/bin/sh',
+                    '# Skrypt naprawczy wygenerowany przez confrisk.',
+                    '# PRZEJRZYJ przed uruchomieniem — część poleceń wymaga uprawnień root (sudo).',
+                    '# Wiersze komentarza (#) to kroki ręczne — brak bezpiecznej komendy jednolinijkowej.',
+                    ''
+                ];
+                document.querySelectorAll('details.finding[data-rem]').forEach(function (d) {
+                    lines.push('# [' + (d.getAttribute('data-id') || '') + '] ' + (d.getAttribute('data-title') || ''));
+                    var cmd = d.getAttribute('data-cmd');
+                    if (cmd) {
+                        lines.push(cmd);
+                    } else {
+                        lines.push('# RĘCZNIE: ' + d.getAttribute('data-rem'));
+                    }
+                    lines.push('');
+                });
+                var blob = new Blob([lines.join('\n')], { type: 'text/x-shellscript' });
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(blob); a.download = 'fix.sh';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            });
+        }
+    </script>
+</body>
+</html>

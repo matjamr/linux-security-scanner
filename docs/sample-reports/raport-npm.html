@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport bezpieczeństwa — examples/shop-frontend (przykład)</title>
+    <style>
+        :root {
+            --bg: #f5f6f7;
+            --card: #ffffff;
+            --border: #e2e4e8;
+            --text: #20242a;
+            --muted: #6b7280;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+        }
+        .wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px 64px; }
+
+        header h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
+        .meta { color: var(--muted); font-size: 14px; margin: 0; }
+        .meta b { color: var(--text); font-weight: 600; }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-top: 20px;
+        }
+
+        .status { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .status .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+        .status .word { font-size: 17px; font-weight: 600; }
+        .status .sub { color: var(--muted); font-size: 14px; }
+
+        .counts { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+        .counts div { font-size: 14px; color: var(--muted); }
+        .counts b { display: block; font-size: 20px; color: var(--text); font-weight: 600; }
+
+        h2 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; }
+
+        details.finding {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        details.finding > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        details.finding > summary::-webkit-details-marker { display: none; }
+        summary .chev { color: var(--muted); transition: transform .15s; flex: none; }
+        details[open] summary .chev { transform: rotate(90deg); }
+        summary .title { font-weight: 600; flex: 1; }
+        summary .prio { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+        .tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex: none;
+        }
+        .tag.critical { background: #fbeae8; color: #b3261e; }
+        .tag.high     { background: #fdf0e6; color: #b54708; }
+        .tag.medium   { background: #fbf4e0; color: #8a6400; }
+        .tag.low      { background: #e8f0fb; color: #1f5fa8; }
+        .tag.info     { background: #eef0f2; color: #5b6470; }
+        .tag.passed   { background: #e7f3e8; color: #2e7d32; }
+
+        .body { padding: 0 14px 14px 14px; border-top: 1px solid var(--border); }
+        .body p.desc { margin: 12px 0 14px; }
+        dl { margin: 0; }
+        dt { color: var(--muted); font-size: 13px; margin-top: 12px; }
+        dd { margin: 3px 0 0; }
+        dd.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #374151; }
+
+        details.note { margin-top: 24px; color: var(--muted); font-size: 14px; }
+        details.note summary { cursor: pointer; }
+        details.note code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+
+        button.fix, #fixall {
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #cdd0d5;
+            background: #fff;
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        button.fix { border-color: #bcd9c4; color: #256a2a; }
+        button.fix:hover, #fixall:hover { background: #f0f1f3; }
+        .fix-row { margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+        .fix-hint { font-size: 12px; color: #2e7d32; }
+        .fixall-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
+        .fixall-row .note-text { font-size: 12px; color: var(--muted); }
+
+        footer { margin-top: 36px; color: var(--muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Raport bezpieczeństwa</h1>
+            <p class="meta">Projekt <b>examples/shop-frontend (przykład)</b> &middot; profil zasobu <b>production</b> &middot; data 2026-06-09 23:00:00 &middot; kontroli: <b>5</b></p>
+        </header>
+
+        <div class="panel">
+            <div class="status">
+                <span class="dot" style="background:#b3261e"></span>
+                <span class="word">Zagrożony</span>
+                <span class="sub">— nieudanych kontroli 4 z 5, skumulowane ryzyko 33.0</span>
+            </div>
+            <div class="counts">
+                <div><b>2</b> krytyczne</div>
+                <div><b>1</b> wysokie</div>
+                <div><b>0</b> średnie</div>
+                <div><b>1</b> niskie</div>
+                <div><b>1</b> zaliczone</div>
+            </div>
+        </div>
+
+        <h2>Wyniki kontroli</h2>
+        <div class="fixall-row"><button id="fixall">Pobierz skrypt naprawczy (fix.sh) — 4</button><span class="note-text">Wszystkie kroki naprawcze: gotowe komendy + kroki ręczne jako komentarze. Przeglądarka nie zmienia systemu.</span></div>
+        <details class="finding" data-id="NPM-AUDIT-LODASH" data-title="Prototype pollution w lodash" data-rem="Run: npm audit fix" data-cmd="npm audit fix" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">Prototype pollution w lodash</span>
+        <span class="prio">priorytet 6.5</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Prototype pollution w lodash</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">NPM-AUDIT-LODASH</dd>
+            <dt>Co wykryto</dt><dd>lodash &lt;4.17.21 (CVE-2021-23337)</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.95 (conf) = 13.06</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Run: npm audit fix</dd>
+        </dl>
+        <div class="fix-row"><button class="fix" data-cmd="npm audit fix">Napraw automatycznie</button><span class="fix-hint"></span></div>
+    </div>
+</details>
+<details class="finding" data-id="NPM-AUDIT-SUMMARY" data-title="5 podatności wykrytych przez npm audit" data-rem="Run: npm audit fix" data-cmd="npm audit fix" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag critical">Krytyczne</span>
+        <span class="title">5 podatności wykrytych przez npm audit</span>
+        <span class="prio">priorytet 5.2</span>
+    </summary>
+    <div class="body">
+        <p class="desc">5 podatności wykrytych przez npm audit</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">NPM-AUDIT-SUMMARY</dd>
+            <dt>Co wykryto</dt><dd>Critical: 1, High: 2, Moderate: 2</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">8.0 (sev:high) × 1.10 (asset:production) × 1.25 (expo:internet-facing) × 0.95 (conf) = 10.45</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Run: npm audit fix</dd>
+        </dl>
+        <div class="fix-row"><button class="fix" data-cmd="npm audit fix">Napraw automatycznie</button><span class="fix-hint"></span></div>
+    </div>
+</details>
+<details class="finding" data-id="NPM-BLOCKED-EVENT-STREAM" data-title="Zablokowany pakiet: event-stream" data-rem="Replace 'event-stream' with 'through2, readable-stream'. Current version: 3.3.6" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag high">Wysokie</span>
+        <span class="title">Zablokowany pakiet: event-stream</span>
+        <span class="prio">priorytet 3.8</span>
+    </summary>
+    <div class="body">
+        <p class="desc">Zablokowany pakiet: event-stream</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">NPM-BLOCKED-EVENT-STREAM</dd>
+            <dt>Co wykryto</dt><dd>event-stream@3.3.6 (incydent flatmap-stream)</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">10.0 (sev:critical) × 1.10 (asset:production) × 0.70 (expo:local) × 0.99 (conf) = 7.62</dd>
+            <dt>Nakład naprawy</dt><dd>2.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Replace 'event-stream' with 'through2, readable-stream'. Current version: 3.3.6</dd>
+        </dl>
+        
+    </div>
+</details>
+<details class="finding" data-id="NPM-OUTDATED" data-title="14 nieaktualnych pakietów" data-rem="Run: npm update" data-cmd="npm update" open>
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag low">Niskie</span>
+        <span class="title">14 nieaktualnych pakietów</span>
+        <span class="prio">priorytet 0.6</span>
+    </summary>
+    <div class="body">
+        <p class="desc">14 nieaktualnych pakietów</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">NPM-OUTDATED</dd>
+            <dt>Co wykryto</dt><dd>14 packages need updating</dd>
+            <dt>Dlaczego taki wynik</dt><dd class="mono">3.0 (sev:low) × 1.10 (asset:production) × 0.70 (expo:local) × 0.80 (conf) = 1.85</dd>
+            <dt>Nakład naprawy</dt><dd>3.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>Run: npm update</dd>
+        </dl>
+        <div class="fix-row"><button class="fix" data-cmd="npm update">Napraw automatycznie</button><span class="fix-hint"></span></div>
+    </div>
+</details>
+<details class="finding">
+    <summary>
+        <span class="chev">&#9656;</span>
+        <span class="tag passed">Zaliczone</span>
+        <span class="title">express, axios — brak znanych podatności</span>
+        <span class="prio">priorytet 0.0</span>
+    </summary>
+    <div class="body">
+        <p class="desc">express, axios — brak znanych podatności</p>
+        <dl>
+            <dt>Identyfikator</dt><dd class="mono">NPM-OK</dd>
+            <dt>Co wykryto</dt><dd>0 dopasowań</dd>
+            
+            <dt>Nakład naprawy</dt><dd>1.0 / 5</dd>
+            <dt>Rekomendacja</dt><dd>N/A</dd>
+        </dl>
+        
+    </div>
+</details>
+
+
+        <details class="note">
+            <summary>Jak liczone jest ryzyko?</summary>
+            <p>Ryzyko = dotkliwość &times; krytyczność zasobu &times; ekspozycja &times; pewność. Priorytet = ryzyko &divide; nakład naprawy. Wyniki są sortowane malejąco po priorytecie, a każdy zawiera rozbicie oceny na czynniki.</p>
+        </details>
+
+        <footer>confrisk — ocena konfiguracji systemu</footer>
+    </div>
+    <script>
+        function copyText(t) {
+            return new Promise(function (res) {
+                function fallback() {
+                    var ta = document.createElement('textarea');
+                    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.focus(); ta.select();
+                    try { document.execCommand('copy'); } catch (e) {}
+                    document.body.removeChild(ta); res();
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(t).then(function () { res(); }, fallback);
+                } else {
+                    fallback();
+                }
+            });
+        }
+        document.querySelectorAll('button.fix').forEach(function (b) {
+            b.addEventListener('click', function () {
+                copyText(b.getAttribute('data-cmd')).then(function () {
+                    var h = b.parentElement.querySelector('.fix-hint');
+                    if (h) { h.textContent = 'Skopiowano — wklej w terminalu'; setTimeout(function () { h.textContent = ''; }, 2500); }
+                });
+            });
+        });
+        var fa = document.getElementById('fixall');
+        if (fa) {
+            fa.addEventListener('click', function () {
+                var lines = [
+                    '#!/bin/sh',
+                    '# Skrypt naprawczy wygenerowany przez confrisk.',
+                    '# PRZEJRZYJ przed uruchomieniem — część poleceń wymaga uprawnień root (sudo).',
+                    '# Wiersze komentarza (#) to kroki ręczne — brak bezpiecznej komendy jednolinijkowej.',
+                    ''
+                ];
+                document.querySelectorAll('details.finding[data-rem]').forEach(function (d) {
+                    lines.push('# [' + (d.getAttribute('data-id') || '') + '] ' + (d.getAttribute('data-title') || ''));
+                    var cmd = d.getAttribute('data-cmd');
+                    if (cmd) {
+                        lines.push(cmd);
+                    } else {
+                        lines.push('# RĘCZNIE: ' + d.getAttribute('data-rem'));
+                    }
+                    lines.push('');
+                });
+                var blob = new Blob([lines.join('\n')], { type: 'text/x-shellscript' });
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(blob); a.download = 'fix.sh';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            });
+        }
+    </script>
+</body>
+</html>
