@@ -8,7 +8,7 @@ const { execSync } = require('child_process');
 const BINARY_NAME = 'confrisk-npm';
 const BINARY_PATH = path.join(__dirname, BINARY_NAME);
 
-console.log('📦 Installing confrisk-npm...');
+console.log('Installing confrisk-npm...');
 
 // Check if binary exists
 if (!fs.existsSync(BINARY_PATH)) {

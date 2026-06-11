@@ -9,7 +9,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}🔒 Safe npm install with confrisk-npm${NC}"
+echo -e "${GREEN}Safe npm install with confrisk-npm${NC}"
 echo ""
 
 # Parse arguments
@@ -32,13 +32,13 @@ echo ""
 if command -v confrisk-npm >/dev/null 2>&1; then
     if confrisk-npm --path . --fail-on "$FAIL_ON" --exit-code; then
         echo ""
-        echo -e "${GREEN}✅ Security scan passed!${NC}"
+        echo -e "${GREEN}Security scan passed!${NC}"
         echo ""
         exit 0
     else
         EXIT_CODE=$?
         echo ""
-        echo -e "${RED}❌ Security scan failed!${NC}"
+        echo -e "${RED}Security scan failed!${NC}"
         echo -e "${RED}Found vulnerabilities with severity: $FAIL_ON or higher${NC}"
         echo ""
         echo "To fix:"
@@ -52,7 +52,7 @@ if command -v confrisk-npm >/dev/null 2>&1; then
         exit $EXIT_CODE
     fi
 else
-    echo -e "${YELLOW}⚠️  confrisk-npm not installed, skipping security scan${NC}"
+    echo -e "${YELLOW} confrisk-npm not installed, skipping security scan${NC}"
     echo "Install: npm install -g confrisk-npm"
     echo ""
     exit 0

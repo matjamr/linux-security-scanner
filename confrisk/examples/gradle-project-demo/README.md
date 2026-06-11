@@ -30,7 +30,7 @@ The scanner should detect:
 - 4+ CRITICAL vulnerabilities
 - Multiple security issues with detailed remediation
 
-## Bramka bezpieczeństwa w buildzie (Opcja A)
+## Bramka bezpieczeństwa w buildzie
 
 `build.gradle` zawiera task `confriskScan` (typu `Exec`) wpięty przed `compileJava`,
 `build`, `assemble`, `check`, `install`/`publishToMavenLocal`. Gdy skaner znajdzie
@@ -56,7 +56,7 @@ export CONFRISK_CONFIG_DIR=/ścieżka/do/confrisk/config   # dziedziczone przez 
 gradle build           # albo: ./gradlew clean install
 
 # → build PRZERWANY: zadanie ':confriskScan' kończy się błędem
-#   („❌ Security issues found! Failing build.")
+#   („Security issues found! Failing build.")
 ```
 
 > To demo nie ma jeszcze wrappera (`gradlew`). Wygeneruj go raz poleceniem
@@ -68,7 +68,7 @@ gradle build           # albo: ./gradlew clean install
 - Task odpala `confrisk-gradle --path <projekt> --fail-on high --exit-code`; `Exec`
   domyślnie przerywa build na kodzie ≠ 0.
 - confrisk parsuje **build.gradle** (regex), więc łapie zależności **zadeklarowane wprost**,
-  nie tranzytywne. Dla tranzytywnych użyj reguł `resolutionStrategy` (Opcja B).
+  nie tranzytywne. Dla tranzytywnych użyj reguł `resolutionStrategy`.
 - Po naprawie wersji (sekcja niżej) `confriskScan` przechodzi i build idzie dalej.
 
 ## Fixing Vulnerabilities

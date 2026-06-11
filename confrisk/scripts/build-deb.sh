@@ -3,16 +3,16 @@
 
 set -e
 
-echo "🔨 Building .deb packages for confrisk..."
+echo "Building .deb packages for confrisk..."
 
 # Check if we're in the right directory
 if [ ! -f "Cargo.toml" ]; then
-    echo "❌ Error: Run this script from the confrisk directory"
+    echo "Error: Run this script from the confrisk directory"
     exit 1
 fi
 
 # Create debian directory structure
-echo "📁 Creating debian package structure..."
+echo "Creating debian package structure..."
 mkdir -p debian/confrisk/DEBIAN
 mkdir -p debian/confrisk/usr/bin
 mkdir -p debian/confrisk/etc/confrisk
@@ -23,24 +23,21 @@ mkdir -p debian/confrisk-npm/usr/bin
 mkdir -p debian/confrisk-npm/usr/share/doc/confrisk-npm
 
 # Build binaries
-echo "🦀 Building Rust binaries..."
+echo "Building Rust binaries..."
 cargo build --release --bin confrisk
 cargo build --release --bin confrisk-npm
 
 # Install confrisk files
-echo "📦 Packaging confrisk..."
+echo "Packaging confrisk..."
 cp target/release/confrisk debian/confrisk/usr/bin/
 chmod +x debian/confrisk/usr/bin/confrisk
 cp -r config/* debian/confrisk/etc/confrisk/
-cp README.md debian/confrisk/usr/share/doc/confrisk/
-cp CONFIG_SYSTEM.md debian/confrisk/usr/share/doc/confrisk/
+cp ../README.md debian/confrisk/usr/share/doc/confrisk/
+cp ../docs/CONFIG_SYSTEM.md debian/confrisk/usr/share/doc/confrisk/
 
-# Export CONFRISK_CONFIG_DIR system-wide so every scanner (confrisk, -npm, -gradle)
-# reads from the packaged config without needing a --config flag. The binaries
-# also probe /etc/confrisk directly, so this is belt-and-suspenders.
+# CONFRISK_CONFIG_DIR systemowo, zeby skanery widzialy config z pakietu
 mkdir -p debian/confrisk/etc/profile.d
 cat > debian/confrisk/etc/profile.d/confrisk.sh << 'PROFILE'
-# Set by the confrisk .deb package. See: man confrisk / docs/CONFIG_LOCATION.md
 export CONFRISK_CONFIG_DIR=/etc/confrisk
 PROFILE
 
@@ -63,11 +60,10 @@ Homepage: https://github.com/yourusername/confrisk
 EOF
 
 # Install confrisk-npm files
-echo "📦 Packaging confrisk-npm..."
+echo "Packaging confrisk-npm..."
 cp target/release/confrisk-npm debian/confrisk-npm/usr/bin/
 chmod +x debian/confrisk-npm/usr/bin/confrisk-npm
-cp CONFRISK_NPM.md debian/confrisk-npm/usr/share/doc/confrisk-npm/README.md
-cp NPM_SCANNER_SUMMARY.md debian/confrisk-npm/usr/share/doc/confrisk-npm/
+cp ../docs/CONFRISK_NPM.md debian/confrisk-npm/usr/share/doc/confrisk-npm/README.md
 
 # Create confrisk-npm control file
 cat > debian/confrisk-npm/DEBIAN/control << 'EOF'
@@ -90,7 +86,7 @@ Homepage: https://github.com/yourusername/confrisk
 EOF
 
 # Build .deb packages
-echo "🔧 Building .deb packages..."
+echo "Building .deb packages..."
 dpkg-deb --build debian/confrisk
 dpkg-deb --build debian/confrisk-npm
 
@@ -109,20 +105,20 @@ cd ..
 rm -rf debian/confrisk debian/confrisk-npm
 
 echo ""
-echo "✅ .deb packages created successfully!"
+echo ".deb packages created successfully!"
 echo ""
-echo "📦 Packages:"
+echo "Packages:"
 echo "   - releases/confrisk_0.2.0_amd64.deb"
 echo "   - releases/confrisk-npm_0.2.0_amd64.deb"
 echo ""
-echo "🧪 Test installation:"
+echo "Test installation:"
 echo "   sudo dpkg -i releases/confrisk_0.2.0_amd64.deb"
 echo "   sudo dpkg -i releases/confrisk-npm_0.2.0_amd64.deb"
 echo ""
-echo "✅ Verify:"
+echo "Verify:"
 echo "   confrisk --help"
 echo "   confrisk-npm --help"
 echo "   dpkg -L confrisk"
 echo ""
-echo "🗑️  Uninstall:"
+echo " Uninstall:"
 echo "   sudo dpkg -r confrisk confrisk-npm"

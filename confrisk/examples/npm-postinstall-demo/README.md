@@ -30,10 +30,10 @@ npm install
 # > npm-postinstall-demo@1.0.0 postinstall
 # > confrisk-npm --path . --config ../../config --fail-on high --exit-code
 #
-# ✅ No security issues found!
+# No security issues found!
 ```
 
-✅ **Result:** Installation succeeds
+**Result:** Installation succeeds
 
 ### Scenario 2: Install Vulnerable Package (Should Fail)
 
@@ -45,16 +45,16 @@ npm install lodash@4.17.20
 # > npm-postinstall-demo@1.0.0 postinstall
 # > confrisk-npm --path . --config ../../config --fail-on high --exit-code
 #
-# 🟠 [NPM-BLOCKED-LODASH] Blocked package: lodash
+# [NPM-BLOCKED-LODASH] Blocked package: lodash
 #    Package:  lodash@4.17.20
 #    Reason:   Prototype pollution vulnerabilities < 4.17.21
 #    Severity: HIGH
 #
-# ❌ Security scan failed!
+# Security scan failed!
 # npm ERR! Exit code: 1
 ```
 
-❌ **Result:** postinstall hook fails, npm shows error
+**Result:** postinstall hook fails, npm shows error
 
 ### Scenario 3: Fix the Vulnerability
 
@@ -63,10 +63,10 @@ npm install lodash@4.17.20
 npm install lodash@latest
 
 # Output:
-# ✅ No security issues found!
+# No security issues found!
 ```
 
-✅ **Result:** Installation succeeds with safe version
+**Result:** Installation succeeds with safe version
 
 ## Configuration
 
@@ -144,5 +144,4 @@ npm install --ignore-scripts && npm run postinstall || true
 
 ## See Also
 
-- [NPM_INSTALL_INTEGRATION.md](../../../docs/NPM_INSTALL_INTEGRATION.md) - Complete integration guide
 - [CONFRISK_NPM.md](../../CONFRISK_NPM.md) - Full npm scanner documentation

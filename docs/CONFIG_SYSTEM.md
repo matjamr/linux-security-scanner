@@ -558,13 +558,13 @@ To migrate:
 
 ## Benefits
 
-✅ **Generic** — Works for any security domain
-✅ **Extensible** — Add checks without code changes
-✅ **Plug-and-Play** — Integrate external scanners easily
-✅ **Customizable** — Adjust risk model to your needs
-✅ **Maintainable** — Non-developers can add rules
-✅ **Auditable** — Config is version-controlled
-✅ **Future-Proof** — Config can be served from remote server
+**Generic** — Works for any security domain
+**Extensible** — Add checks without code changes
+**Plug-and-Play** — Integrate external scanners easily
+**Customizable** — Adjust risk model to your needs
+**Maintainable** — Non-developers can add rules
+**Auditable** — Config is version-controlled
+**Future-Proof** — Config can be served from remote server
 
 ---
 

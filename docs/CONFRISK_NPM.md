@@ -5,10 +5,10 @@ A dedicated security scanner for npm projects that integrates seamlessly with gi
 ## What is confrisk-npm?
 
 **confrisk-npm** scans your npm projects for:
-- 🚫 **Blocked packages** — Vulnerable or deprecated packages from your blocklist
-- 🔍 **npm audit vulnerabilities** — Known CVEs in dependencies
-- 📦 **Outdated packages** — Dependencies that need updating
-- 🎯 **Risk-based prioritization** — Contextual scoring, not just severity
+- **Blocked packages** — Vulnerable or deprecated packages from your blocklist
+- **npm audit vulnerabilities** — Known CVEs in dependencies
+- **Outdated packages** — Dependencies that need updating
+- **Risk-based prioritization** — Contextual scoring, not just severity
 
 Unlike `npm audit`, confrisk-npm provides:
 - **Configurable blocklist** — Ban specific packages/versions company-wide
@@ -76,17 +76,17 @@ Checks: 8
 
 ┌─ Issues Found (sorted by priority) ───────────────────────┐
 
-🔴 [NPM-BLOCKED-LODASH] Blocked package: lodash (priority: 8.2)
+[NPM-BLOCKED-LODASH] Blocked package: lodash (priority: 8.2)
    Prototype pollution vulnerabilities < 4.17.21
    Evidence: Found lodash version ^4.17.20 in dependencies
    Fix: Replace 'lodash' with 'lodash >= 4.17.21'
 
-🟠 [NPM-AUDIT-EXPRESS] Vulnerability in express (priority: 6.1)
+[NPM-AUDIT-EXPRESS] Vulnerability in express (priority: 6.1)
    Package 'express' has a high severity vulnerability
    Evidence: Package: express, Range: <4.19.0, Severity: high
    Fix: Run 'npm audit fix' or update package manually
 
-✅ No critical issues found!
+No critical issues found!
 ```
 
 ## Usage
@@ -148,8 +148,8 @@ chmod +x .husky/pre-commit
 ```bash
 git add .
 git commit -m "Update dependencies"
-# 🔒 Running confrisk-npm security scan...
-# ❌ Security scan failed! Fix vulnerabilities before committing.
+# Running confrisk-npm security scan...
+# Security scan failed! Fix vulnerabilities before committing.
 ```
 
 ### Example `.husky/pre-commit`
@@ -159,17 +159,17 @@ git commit -m "Update dependencies"
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Run confrisk-npm security scan before commit
-echo "🔒 Running confrisk-npm security scan..."
+echo "Running confrisk-npm security scan..."
 
 confrisk-npm --path . --fail-on high --exit-code
 
 if [ $? -ne 0 ]; then
-  echo "❌ Security scan failed! Fix vulnerabilities before committing."
+  echo "Security scan failed! Fix vulnerabilities before committing."
   echo "Run 'npm audit fix' or check the output above."
   exit 1
 fi
 
-echo "✅ Security scan passed!"
+echo "Security scan passed!"
 ```
 
 ## CI/CD Integration
@@ -371,9 +371,9 @@ Use `--exit-code` to fail builds:
 ```bash
 confrisk-npm --fail-on high --exit-code
 if [ $? -eq 0 ]; then
-  echo "✅ Build passed security scan"
+  echo "Build passed security scan"
 else
-  echo "❌ Build failed due to security issues"
+  echo "Build failed due to security issues"
 fi
 ```
 
@@ -434,7 +434,7 @@ confrisk-npm --fail-on high --exit-code
 #!/bin/sh
 # Allow bypass with: git commit --no-verify
 if [ "$HUSKY_SKIP_SECURITY" = "1" ]; then
-  echo "⚠️  Skipping security scan (HUSKY_SKIP_SECURITY=1)"
+  echo " Skipping security scan (HUSKY_SKIP_SECURITY=1)"
   exit 0
 fi
 
@@ -447,10 +447,10 @@ confrisk-npm --fail-on high --exit-code
 #!/bin/sh
 # Only scan if package.json or package-lock.json changed
 if git diff --cached --name-only | grep -q "package.*\.json"; then
-  echo "📦 package.json changed, running security scan..."
+  echo "package.json changed, running security scan..."
   confrisk-npm --fail-on high --exit-code
 else
-  echo "✅ No package changes, skipping security scan"
+  echo "No package changes, skipping security scan"
 fi
 ```
 
@@ -458,13 +458,13 @@ fi
 
 | Feature | npm audit | confrisk-npm |
 |---------|-----------|--------------|
-| **CVE Detection** | ✅ Yes | ✅ Yes (via npm audit) |
-| **Custom Blocklist** | ❌ No | ✅ Yes |
+| **CVE Detection** | Yes | Yes (via npm audit) |
+| **Custom Blocklist** | No | Yes |
 | **Risk Scoring** | Severity only | Contextual (asset + exposure) |
-| **Priority Calculation** | ❌ No | ✅ Yes (risk ÷ effort) |
-| **Asset Profiles** | ❌ No | ✅ dev, internal, prod, crown-jewel |
+| **Priority Calculation** | No | Yes (risk ÷ effort) |
+| **Asset Profiles** | No | dev, internal, prod, crown-jewel |
 | **CI/CD Integration** | Basic | Advanced (exit codes, JSON) |
-| **Policy Enforcement** | ❌ No | ✅ Company-wide rules |
+| **Policy Enforcement** | No | Company-wide rules |
 
 ## Troubleshooting
 
@@ -554,7 +554,7 @@ confrisk-npm
 # Try to commit (will trigger pre-commit hook)
 git add .
 git commit -m "Test commit"
-# 🔒 Running confrisk-npm security scan...
+# Running confrisk-npm security scan...
 ```
 
 ## Roadmap

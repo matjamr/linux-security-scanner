@@ -28,7 +28,7 @@ for path in "${BINARY_PATHS[@]}"; do
 done
 
 if [ -z "$BINARY" ]; then
-    echo "❌ Error: confrisk-npm binary not found!"
+    echo "Error: confrisk-npm binary not found!"
     echo "Please build it with: cargo build --release --bin confrisk-npm"
     exit 1
 fi

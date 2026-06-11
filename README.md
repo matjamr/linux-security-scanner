@@ -1,147 +1,94 @@
-# Linux Security Scanner
+# confrisk
 
-This repository contains the **confrisk** security assessment framework with specialized dependency scanners.
+Framework oceny bezpieczeństwa dla systemów Linux i zależności aplikacji
+z kontekstowym scoringiem ryzyka. Zamiast samej dotkliwości, wynik zależy
+od krytyczności zasobu, ekspozycji i pewności detekcji:
 
-## What is confrisk?
+```
+risk     = severity x asset x exposure x confidence
+priority = risk / effort
+```
 
-**confrisk** is a generic, config-driven security assessment framework for Linux systems and application dependencies that:
+## Narzędzia
 
-- 🔍 Scans system configurations, dependencies, and network exposure
-- 📊 Scores findings using contextual risk assessment (not just severity)
-- 🎯 Prioritizes remediation by effort-adjusted risk
-- 📝 Generates detailed HTML reports with explainable scoring
-- 🔌 Integrates external scanners without code changes
-- ⚙️ Fully configurable via JSON files
+| Binarka | Zastosowanie |
+|---------|--------------|
+| `confrisk` | skan konfiguracji systemu Linux (SSH, uprawnienia plików, kernel) |
+| `confrisk-npm` | skan zależności npm (blocklista, npm audit, pakiety nieaktualne) |
+| `confrisk-gradle` | skan zależności Gradle/Maven (parsowanie build.gradle) |
 
-## Tools Included
+Wyjście: tekst, JSON (CI/CD) oraz raport HTML z przyciskami naprawy
+i zbiorczym skryptem fix.sh.
 
-- **confrisk** - Full Linux system security assessment
-- **confrisk-npm** - NPM dependency vulnerability scanner (50+ vulnerable packages detected)
-- **confrisk-gradle** - Gradle/Maven dependency scanner (30+ Java vulnerabilities detected)
-
-## Quick Start
+## Budowanie i instalacja
 
 ```bash
 cd confrisk
-
-# Build
 cargo build --release
+cargo install --path .        # binarki w ~/.cargo/bin
 
-# Run scan
-cargo run -- --asset production --out report.html
-
-# Open report
-open report.html  # macOS
-xdg-open report.html  # Linux
+# konfiguracja (jedno z):
+export CONFRISK_CONFIG_DIR="$PWD/config"
+# albo: cp -r config ~/.config/confrisk
 ```
 
-## Documentation
-
-### Core System
-- **[confrisk/README.md](docs/README.md)** — Main documentation
-- **[confrisk/CONFIG_SYSTEM.md](docs/CONFIG_SYSTEM.md)** — Configuration system
-- **[confrisk/CONFIG_QUICKSTART.md](docs/CONFIG_QUICKSTART.md)** — Quick start guide
-- **[confrisk/DEMO_RESULTS.md](docs/DEMO_RESULTS.md)** — Demo execution results
-
-### Dependency Scanners
-- **[GRADLE_SCANNER.md](docs/GRADLE_SCANNER.md)** — Gradle dependency scanner (NEW!)
-- **[NPM_SCANNER_SUMMARY.md](docs/NPM_SCANNER_SUMMARY.md)** — NPM scanner details
-
-## Features
-
-### v0.1 — Original Implementation
-- 8 hardcoded security checks (SSH, file permissions, kernel hardening)
-- Risk-based scoring model
-- Contextual priority calculation
-- HTML report generation
-- Docker demo with vulnerable container
-
-### v0.2 — Config-Driven Architecture (NEW!)
-- 🎯 **12 generic issue categories** (PRIVILEGES, DEPENDENCIES, OPEN_PORTS, LOGS, SECRETS, etc.)
-- ⚙️ **Configurable risk model** — Adjust weights in JSON, no code changes
-- 📝 **JSON-based checks** — Add security checks by creating JSON files
-- 🔌 **Plugin system** — Integrate Trivy, Lynis, Gitleaks, OSV-Scanner
-- 🚫 **User-defined rules** — Block vulnerable packages, flag dangerous ports
-- 🔧 **5 detection types** — config_directive, file_permission, command_output, file_exists, custom
-
-## Directory Structure
-
-```
-linux-security-scanner/
-├── .gitignore
-├── README.md (this file)
-└── confrisk/
-    ├── config/              ← NEW: JSON configuration files
-    │   ├── categories.json
-    │   ├── scoring.json
-    │   ├── checks/
-    │   ├── plugins/
-    │   └── rules/
-    ├── src/
-    │   ├── main.rs
-    │   ├── model.rs
-    │   ├── checks.rs
-    │   ├── report.rs
-    │   └── config.rs        ← NEW: Config loader
-    ├── demo/
-    │   ├── Dockerfile.vulnerable
-    │   └── docker-compose.yml
-    └── README.md
-```
-
-## Example: Add Your Own Check
-
-Create `confrisk/config/checks/my-check.json`:
-
-```json
-{
-  "id": "CUSTOM-001",
-  "name": "My security check",
-  "category": "COMPLIANCE",
-  "severity": "high",
-  "detection": {
-    "type": "file_permission",
-    "file": "/etc/my-config",
-    "max_mode": "0644"
-  },
-  "remediation": {
-    "summary": "Fix permissions",
-    "steps": ["chmod 644 /etc/my-config"]
-  }
-}
-```
-
-Run `confrisk` — it automatically loads the new check!
-
-## Demo
-
-A complete demo with a vulnerable Docker container is available:
+## Użycie
 
 ```bash
-cd confrisk/demo
+# skan systemu -> raport HTML
+confrisk --asset production --out report.html
 
-# Build and run
-docker compose run --rm confrisk-demo
+# skan zaleznosci, blokada builda w CI
+confrisk-npm    --path ./app --fail-on high --exit-code
+confrisk-gradle --path ./app --fail-on high --exit-code
 
-# View report
-open out/report.html
+# raport HTML dla projektu
+confrisk-npm --path ./app --format html --out raport.html
 ```
 
-The demo shows how the **same vulnerabilities** get **different risk scores** based on asset criticality (dev vs production vs crown-jewel).
+Profil zasobu (`--asset`): `dev`, `internal`, `production`, `crown-jewel` —
+ta sama podatność dostaje inny wynik ryzyka zależnie od środowiska.
 
-## Contributing
+## Konfiguracja
 
-This is an educational/research project demonstrating:
-- Contextual risk assessment
-- Config-driven architecture
-- Plugin-based scanner integration
-- Explainable security scoring
+Reguły, kontrole i wagi scoringu są w plikach JSON (katalog `confrisk/config/`):
 
-## License
+```
+config/
+├── categories.json      # kategorie problemow
+├── scoring.json         # wagi modelu ryzyka
+├── checks/              # kontrole systemowe (1 plik = 1 kontrola)
+├── plugins/             # integracje zewnetrznych skanerow
+└── rules/
+    ├── dependencies.json  # blocklista pakietow (npm + maven)
+    └── ports.json         # niebezpieczne porty
+```
 
-Educational/Research project.
+Nową kontrolę lub regułę dodaje się plikiem JSON, bez rekompilacji.
+Lokalizację konfiguracji wskazuje zmienna `CONFRISK_CONFIG_DIR`
+(fallback: `~/.config/confrisk`, `/etc/confrisk`, `./config`).
 
----
+## Struktura repozytorium
 
-**Version:** 0.2.0-alpha
-**Last Updated:** May 23, 2026
+```
+confrisk/
+├── src/                 # kod (Rust): model ryzyka, config, skanery, raport, CLI
+├── config/              # konfiguracja JSON
+├── examples/            # projekty demonstracyjne (npm, gradle, docker)
+└── scripts/             # build-deb.sh itd.
+docs/                    # dokumentacja, sprawozdanie, prezentacja, przykładowe raporty
+```
+
+## Dokumentacja
+
+- [docs/DOKUMENTACJA_KODU.md](docs/DOKUMENTACJA_KODU.md) — opis modułów i przepływów
+- [docs/CONFIG_SYSTEM.md](docs/CONFIG_SYSTEM.md) — format plików konfiguracyjnych
+- [docs/CONFRISK_NPM.md](docs/CONFRISK_NPM.md) — skaner npm
+- [docs/GRADLE_SCANNER.md](docs/GRADLE_SCANNER.md) — skaner Gradle + bramka w buildzie
+- [docs/sample-reports/](docs/sample-reports/) — przykładowe raporty HTML
+
+## Testy
+
+```bash
+cd confrisk && cargo test
+```

@@ -61,11 +61,10 @@ Thumbs.db
 *.tar.gz
 *.tar.gz.sha256
 
-# Node modules — every demo / npm package (matches at any depth)
+# Node modules
 node_modules/
-# Keep package-lock.json for demos to ensure consistent vulnerable versions
 
-# Compiled binary bundled into the npm wrapper package by prepare-npm-package.sh
+# Binarka kopiowana do paczki npm
 /npm-package/confrisk-npm
 
 # Generated reports

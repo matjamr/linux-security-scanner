@@ -1,36 +1,16 @@
-/// Shared command-line driver for ecosystem scanner binaries.
-///
-/// `confrisk-npm` and `confrisk-gradle` (and any future `confrisk-<eco>`) differ
-/// only in *which* [`Scanner`] they construct and a few display strings. All the
-/// argument parsing, config resolution, output rendering and CI exit-code logic
-/// lives here so each binary stays a thin entry point:
-///
-/// ```ignore
-/// fn main() {
-///     confrisk::cli::run(
-///         confrisk::cli::ToolInfo::NPM,
-///         |config, path| confrisk::npm::NpmScanner::new(config, path),
-///     );
-/// }
-/// ```
+/// Wspolny sterownik CLI dla binarek skanerow (argumenty, config, render, kody wyjscia)
 use crate::config::{Config, CONFIG_DIR_ENV};
 use crate::model::{score_all, AssetCriticality, ScoredFinding};
 use crate::scanner::Scanner;
 use std::process;
 
-/// Static, per-binary display metadata. Construct via the associated constants
-/// ([`ToolInfo::NPM`], [`ToolInfo::GRADLE`]) rather than by hand.
+/// Metadane binarki (nazwy, naglowki)
 #[derive(Clone, Copy)]
 pub struct ToolInfo {
-    /// Executable name, e.g. `"confrisk-npm"`.
     pub bin: &'static str,
-    /// Short version tag shown in usage/banner, e.g. `"v0.2"`.
     pub version: &'static str,
-    /// One-line description of what the scanner does.
     pub tagline: &'static str,
-    /// Banner title shown above results, e.g. `"NPM Security Scan"`.
     pub title: &'static str,
-    /// Human label for the scanned project, e.g. `"npm project"`.
     pub project_kind: &'static str,
 }
 
@@ -52,16 +32,15 @@ impl ToolInfo {
     };
 }
 
-/// Output format for scan results.
+/// Format wyjscia
 #[derive(Clone, Copy, PartialEq)]
 pub enum OutputFormat {
     Text,
     Json,
-    /// Self-contained HTML report written to `--out` (same template as the system scanner).
     Html,
 }
 
-/// Severity threshold at which a scan fails the build (`--fail-on`).
+/// Prog --fail-on
 #[derive(Clone, Copy)]
 pub enum FailLevel {
     Critical,
@@ -71,7 +50,6 @@ pub enum FailLevel {
 }
 
 impl FailLevel {
-    /// The minimum scored risk that trips this threshold.
     fn threshold_risk(self) -> f64 {
         match self {
             FailLevel::Critical => 9.0,
@@ -92,33 +70,23 @@ impl FailLevel {
     }
 }
 
-/// Parsed, validated command-line arguments shared by every scanner binary.
+/// Sparsowane argumenty
 pub struct ScanArgs {
     pub project_path: String,
     pub asset: AssetCriticality,
     pub format: OutputFormat,
-    /// `Some` only when `--config` was passed; otherwise the config directory is
-    /// resolved from `$CONFRISK_CONFIG_DIR` and standard locations.
     pub config_path: Option<String>,
     pub fail_on: FailLevel,
     pub exit_on_vuln: bool,
-    /// Destination file for the HTML report (used only when `format` is `Html`).
     pub out_path: String,
 }
 
-/// Outcome of parsing arguments.
 enum ParseOutcome {
-    /// Proceed with a scan using these arguments.
     Run(ScanArgs),
-    /// `--help` was requested; print usage and exit successfully.
     Help,
 }
 
-/// The full lifecycle of a scanner binary: parse args, resolve & load config,
-/// build the scanner, scan, score, render, and exit with the right code.
-///
-/// `build` constructs the concrete [`Scanner`] from the loaded config and the
-/// resolved project path. Never returns — always exits the process.
+/// Pelny cykl binarki: argumenty -> config -> skan -> scoring -> render -> exit
 pub fn run<S: Scanner>(info: ToolInfo, build: impl FnOnce(Config, String) -> S) -> ! {
     let args: Vec<String> = std::env::args().collect();
 
@@ -135,8 +103,6 @@ pub fn run<S: Scanner>(info: ToolInfo, build: impl FnOnce(Config, String) -> S) 
         }
     };
 
-    // Resolve the config directory: --config flag, then $CONFRISK_CONFIG_DIR,
-    // then standard Linux locations. See Config::resolve_dir.
     let config = match Config::load_resolved(parsed.config_path.as_deref()) {
         Ok(c) => c,
         Err(e) => {
@@ -173,7 +139,7 @@ pub fn run<S: Scanner>(info: ToolInfo, build: impl FnOnce(Config, String) -> S) 
     }
 
     if parsed.exit_on_vuln && exit_code(&scored, parsed.fail_on) > 0 {
-        eprintln!("\n❌ Security issues found! Failing build.");
+        eprintln!("\nSecurity issues found! Failing build.");
         process::exit(exit_code(&scored, parsed.fail_on));
     }
 
@@ -189,7 +155,6 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
     let mut exit_on_vuln = false;
     let mut out_path = "report.html".to_string();
 
-    // Pull the value following a flag, erroring with a consistent message.
     let value_at = |i: usize, flag: &str| -> Result<String, String> {
         args.get(i + 1)
             .cloned()
@@ -247,8 +212,6 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
             asset_str
         )
     })?;
-    // `info` is unused here today but kept in the signature so per-tool argument
-    // validation can be added without touching call sites.
     let _ = info;
 
     Ok(ParseOutcome::Run(ScanArgs {
@@ -262,7 +225,6 @@ fn parse_args(info: ToolInfo, args: &[String]) -> Result<ParseOutcome, String> {
     }))
 }
 
-/// Current date/time as a display string, via the system `date` command.
 fn get_date() -> String {
     if let Ok(out) = process::Command::new("date").arg("+%Y-%m-%d %H:%M:%S").output() {
         if out.status.success() {
@@ -307,7 +269,6 @@ fn print_usage(info: ToolInfo) {
     println!("    {} --asset dev", info.bin);
 }
 
-/// Tally of unpassed findings by risk band.
 struct Summary {
     critical: u32,
     high: u32,
@@ -362,7 +323,7 @@ fn render_text(info: ToolInfo, findings: &[ScoredFinding], project_path: &str) {
     println!();
 
     if !summary.has_issues() {
-        println!("✅ No security issues found!");
+        println!("No security issues found!");
         return;
     }
 

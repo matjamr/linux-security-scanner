@@ -52,7 +52,7 @@ confrisk-npm --path . --fail-on high --exit-code
 │ Passed:     5                                              │
 └───────────────────────────────────────────────────────────┘
 
-🟠 [NPM-BLOCKED-LODASH] Blocked package: lodash (priority: 4.1)
+[NPM-BLOCKED-LODASH] Blocked package: lodash (priority: 4.1)
    Prototype pollution vulnerabilities < 4.17.21
    Evidence: Found lodash version ^4.17.20 in dependencies
    Fix: Replace 'lodash' with 'lodash >= 4.17.21'
@@ -84,8 +84,8 @@ git add .
 git commit -m "Test commit"
 
 # Output:
-# 🔒 Running confrisk-npm security scan...
-# ❌ Security scan failed! Fix vulnerabilities before committing.
+# Running confrisk-npm security scan...
+# Security scan failed! Fix vulnerabilities before committing.
 ```
 
 ### Bypass Hook (Not Recommended)
@@ -163,7 +163,7 @@ Edit `../../config/rules/dependencies.json` to block additional packages:
 ```bash
 npm install lodash@latest
 npm run security-scan
-# ✅ No security issues found!
+# No security issues found!
 ```
 
 ### Scenario 2: Development Environment

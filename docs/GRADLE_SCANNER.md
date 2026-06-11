@@ -4,12 +4,12 @@ A fast, config-driven security scanner for Gradle projects that detects vulnerab
 
 ## Features
 
-- 🔍 **Config-Driven** - All vulnerability rules loaded from `config/rules/dependencies.json`
-- ⚡ **Fast** - Written in Rust, scans in milliseconds
-- 📦 **Comprehensive** - 30+ critical Java library vulnerabilities detected
-- 🎯 **CI/CD Ready** - Exit codes, JSON output, risk-based thresholds
-- 🔧 **Zero Dependencies** - No Gradle installation required
-- 📊 **Risk Scoring** - Context-aware risk assessment with asset criticality
+- **Config-Driven** - All vulnerability rules loaded from `config/rules/dependencies.json`
+- **Fast** - Written in Rust, scans in milliseconds
+- **Comprehensive** - 30+ critical Java library vulnerabilities detected
+- **CI/CD Ready** - Exit codes, JSON output, risk-based thresholds
+- **Zero Dependencies** - No Gradle installation required
+- **Risk Scoring** - Context-aware risk assessment with asset criticality
 
 ## Quick Start
 
@@ -206,14 +206,14 @@ cargo run --bin confrisk-gradle -- --path examples/gradle-project-demo --config 
 
 | Feature | confrisk-gradle | Gradle's dependency-check | OWASP Dependency-Check |
 |---------|----------------|---------------------------|------------------------|
-| Speed | ⚡ Instant | Slow | Very Slow |
-| Gradle Install Required | ❌ No | ✅ Yes | ✅ Yes |
-| Config-Driven Rules | ✅ Yes | ❌ No | ❌ No |
-| Risk Scoring | ✅ Yes | ❌ No | ⚠️ Limited |
-| CI/CD Ready | ✅ Yes | ⚠️ Limited | ⚠️ Limited |
-| Custom Rules | ✅ Easy JSON | ⚠️ Complex | ⚠️ Complex |
+| Speed | Instant | Slow | Very Slow |
+| Gradle Install Required | No | Yes | Yes |
+| Config-Driven Rules | Yes | No | No |
+| Risk Scoring | Yes | No | Limited |
+| CI/CD Ready | Yes | Limited | Limited |
+| Custom Rules | Easy JSON | Complex | Complex |
 
-## Bramka w buildzie Gradle (Opcja A) — blokowanie buildu
+## Bramka w buildzie Gradle — blokowanie buildu
 
 Aby `gradle build` / `./gradlew clean install` **przerywał build** na zablokowanych
 zależnościach, wklej do `build.gradle` task `Exec` i wepnij go w cykl życia:
@@ -240,7 +240,7 @@ lub `~/.config/confrisk`, lub katalog `config/` w projekcie). Działający przyk
 
 > **Ograniczenie:** confrisk parsuje `build.gradle`, więc bramka łapie zależności
 > **zadeklarowane wprost** — nie tranzytywne. Dla tranzytywnych dołóż reguły
-> `resolutionStrategy.eachDependency { … }` (Opcja B).
+> `resolutionStrategy.eachDependency { … }`.
 
 ## Limitations
 

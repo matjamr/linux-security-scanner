@@ -3,11 +3,11 @@
 
 set -e
 
-echo "🔨 Preparing confrisk-npm package..."
+echo "Preparing confrisk-npm package..."
 
 # Check if we're in the right directory
 if [ ! -f "Cargo.toml" ]; then
-    echo "❌ Error: Run this script from the confrisk directory"
+    echo "Error: Run this script from the confrisk directory"
     exit 1
 fi
 
@@ -17,7 +17,7 @@ cargo build --release --bin confrisk-npm
 
 # Check if binary exists
 if [ ! -f "target/release/confrisk-npm" ]; then
-    echo "❌ Error: Binary not found at target/release/confrisk-npm"
+    echo "Error: Binary not found at target/release/confrisk-npm"
     exit 1
 fi
 
@@ -30,8 +30,8 @@ cp target/release/confrisk-npm npm-package/
 
 # Copy README
 echo "Step 3: Copying documentation..."
-if [ -f "CONFRISK_NPM.md" ]; then
-    cp CONFRISK_NPM.md npm-package/README.md
+if [ -f "../docs/CONFRISK_NPM.md" ]; then
+    cp ../docs/CONFRISK_NPM.md npm-package/README.md
 else
     echo "Warning: CONFRISK_NPM.md not found, creating basic README"
     cat > npm-package/README.md << 'EOF'
@@ -57,14 +57,14 @@ chmod +x npm-package/confrisk-npm
 
 # Verify package.json exists
 if [ ! -f "npm-package/package.json" ]; then
-    echo "❌ Error: npm-package/package.json not found"
+    echo "Error: npm-package/package.json not found"
     exit 1
 fi
 
 echo ""
-echo "✅ Package prepared successfully!"
+echo "Package prepared successfully!"
 echo ""
-echo "📦 Package location: npm-package/"
+echo "Package location: npm-package/"
 echo ""
 echo "To install locally:"
 echo "  cd npm-package"

@@ -26,7 +26,7 @@ case $ARCH in
         ARCH="aarch64"
         ;;
     *)
-        echo -e "${RED}❌ Unsupported architecture: $ARCH${NC}"
+        echo -e "${RED}Unsupported architecture: $ARCH${NC}"
         exit 1
         ;;
 esac
@@ -34,12 +34,12 @@ esac
 # Detect OS
 OS=$(uname -s)
 if [ "$OS" != "Linux" ]; then
-    echo -e "${RED}❌ This script only supports Linux${NC}"
+    echo -e "${RED}This script only supports Linux${NC}"
     echo "Detected OS: $OS"
     exit 1
 fi
 
-echo -e "${GREEN}🔒 Installing confrisk${NC}"
+echo -e "${GREEN}Installing confrisk${NC}"
 echo "  Version: $VERSION"
 echo "  Architecture: $ARCH"
 echo "  Install directory: $INSTALL_DIR"
@@ -53,7 +53,7 @@ else
     DOWNLOAD_URL="${BASE_URL}/download/v${VERSION}/confrisk-${VERSION}-linux-${ARCH}.tar.gz"
 fi
 
-echo -e "${YELLOW}📥 Downloading from: $DOWNLOAD_URL${NC}"
+echo -e "${YELLOW}Downloading from: $DOWNLOAD_URL${NC}"
 
 # Create temp directory
 TMP_DIR=$(mktemp -d)
@@ -61,7 +61,7 @@ cd "$TMP_DIR"
 
 # Download
 if ! curl -L "$DOWNLOAD_URL" -o confrisk.tar.gz; then
-    echo -e "${RED}❌ Download failed!${NC}"
+    echo -e "${RED}Download failed!${NC}"
     echo "URL: $DOWNLOAD_URL"
     echo ""
     echo "Available releases: ${BASE_URL}"
@@ -70,13 +70,13 @@ if ! curl -L "$DOWNLOAD_URL" -o confrisk.tar.gz; then
 fi
 
 # Extract
-echo -e "${YELLOW}📦 Extracting...${NC}"
+echo -e "${YELLOW}Extracting...${NC}"
 tar xzf confrisk.tar.gz
 
 # Find extracted directory
 EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "confrisk-*" | head -1)
 if [ -z "$EXTRACTED_DIR" ]; then
-    echo -e "${RED}❌ Extraction failed!${NC}"
+    echo -e "${RED}Extraction failed!${NC}"
     rm -rf "$TMP_DIR"
     exit 1
 fi
@@ -87,11 +87,11 @@ cd "$EXTRACTED_DIR"
 NEED_SUDO=""
 if [ ! -w "$INSTALL_DIR" ]; then
     NEED_SUDO="sudo"
-    echo -e "${YELLOW}⚠️  Need sudo for installation to $INSTALL_DIR${NC}"
+    echo -e "${YELLOW} Need sudo for installation to $INSTALL_DIR${NC}"
 fi
 
 # Install binaries
-echo -e "${YELLOW}🔧 Installing binaries...${NC}"
+echo -e "${YELLOW}Installing binaries...${NC}"
 $NEED_SUDO cp confrisk "$INSTALL_DIR/"
 $NEED_SUDO cp confrisk-npm "$INSTALL_DIR/"
 $NEED_SUDO chmod +x "$INSTALL_DIR/confrisk" "$INSTALL_DIR/confrisk-npm"
@@ -108,7 +108,7 @@ cd /
 rm -rf "$TMP_DIR"
 
 echo ""
-echo -e "${GREEN}✅ confrisk installed successfully!${NC}"
+echo -e "${GREEN}confrisk installed successfully!${NC}"
 echo ""
 echo "Installed binaries:"
 echo "  - $INSTALL_DIR/confrisk"

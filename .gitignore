@@ -54,13 +54,13 @@ confrisk/*.snap
 confrisk/*.tar.gz
 confrisk/*.tar.gz.sha256
 
-# Node modules — every demo / npm package (matches at any depth)
+# Node modules
 node_modules/
 
-# Compiled binary bundled into the npm wrapper package by prepare-npm-package.sh
+# Binarka kopiowana do paczki npm
 confrisk/npm-package/confrisk-npm
 
-# Scratch / ad-hoc test fixtures at repo root
+# Pliki testowe
 /test-vulnerable-package.json
 
 # Generated reports
@@ -75,3 +75,7 @@ confrisk/debian/confrisk-npm/
 confrisk/debian/*.debhelper*
 confrisk/debian/*.substvars
 confrisk/debian/files
+
+# Pliki tymczasowe MS Office
+~$*
+**/~$*

@@ -72,7 +72,7 @@ jobs:
             const high = report.filter(f => !f.passed && f.risk_band === 'high').length;
             const medium = report.filter(f => !f.passed && f.risk_band === 'medium').length;
 
-            const comment = `## 🔒 Security Scan Results
+            const comment = `## Security Scan Results
 
             - Critical: ${critical}
             - High: ${high}

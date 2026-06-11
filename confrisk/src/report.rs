@@ -1,8 +1,8 @@
-/// HTML report generator — clean, light, plain-styled report
+/// Generator raportu HTML
 
 use crate::model::{AssetCriticality, ScoredFinding};
 
-/// Escape HTML special characters
+/// Escapowanie znakow HTML
 fn esc(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -10,16 +10,9 @@ fn esc(s: &str) -> String {
         .replace('"', "&quot;")
 }
 
-/// Extract a runnable shell command from a remediation string, if one is present.
-///
-/// The check definitions use a `Run: <command>` convention for actionable fixes
-/// (e.g. `Run: chmod 644 /etc/passwd`). We treat those as auto-fixable and pull
-/// out the first concrete command, stopping at prose separators (`;`, ` or `).
-/// Remediations without that convention (manual edits, `N/A`, …) return `None`.
+/// Wyciaga komende z remediacji w konwencji "Run: <komenda>"
 fn fix_command(remediation: &str) -> Option<String> {
     let rest = remediation.trim().strip_prefix("Run:")?.trim_start();
-    // Keep only the first command — drop trailing prose like
-    // "; add ... to /etc/sysctl.conf" or " or chmod 600 ...".
     let cmd = rest.split(';').next().unwrap_or(rest);
     let cmd = cmd.split(" or ").next().unwrap_or(cmd).trim();
     if cmd.is_empty() {
@@ -29,14 +22,13 @@ fn fix_command(remediation: &str) -> Option<String> {
     }
 }
 
-/// Whether a remediation describes an actionable step (runnable command or a
-/// manual instruction). Empty or `N/A` remediations are not actionable.
+/// Czy remediacja opisuje realny krok naprawczy
 fn is_actionable(remediation: &str) -> bool {
     let r = remediation.trim();
     !r.is_empty() && !r.starts_with("N/A")
 }
 
-/// Polish label for a risk band / passed state
+/// Etykieta pasma ryzyka
 fn band_label(band: &str) -> &'static str {
     match band {
         "critical" => "Krytyczne",
@@ -48,7 +40,7 @@ fn band_label(band: &str) -> &'static str {
     }
 }
 
-/// Generate an HTML report for a host scan (system scanner). Labels the subject "Host".
+/// Raport HTML dla skanu systemu
 pub fn render(
     findings: &[ScoredFinding],
     ctx: AssetCriticality,
@@ -58,7 +50,7 @@ pub fn render(
     render_inner(findings, ctx, "Host", hostname, scan_date)
 }
 
-/// Generate an HTML report for a project scan (npm/gradle). Labels the subject "Projekt".
+/// Raport HTML dla skanu projektu (npm/gradle)
 pub fn render_project(
     findings: &[ScoredFinding],
     ctx: AssetCriticality,
@@ -68,8 +60,6 @@ pub fn render_project(
     render_inner(findings, ctx, "Projekt", project, scan_date)
 }
 
-/// Generate the complete HTML report. `subject_label`/`subject` fill the meta line
-/// (e.g. "Host macbook" or "Projekt ./app").
 fn render_inner(
     findings: &[ScoredFinding],
     ctx: AssetCriticality,
@@ -102,7 +92,6 @@ fn render_inner(
 
     let failed_count = total - passed_count;
 
-    // Overall posture — a single plain status word with a muted colour.
     let (posture, posture_color) = if critical_count >= 2 {
         ("Zagrożony", "#b3261e")
     } else if critical_count >= 1 || high_count >= 3 {
@@ -115,14 +104,11 @@ fn render_inner(
         ("Bezpieczny", "#2e7d32")
     };
 
-    // Findings: open the ones that did not pass so issues are visible.
     let findings_html: String = findings
         .iter()
         .map(|sf| render_finding(sf, ctx, !sf.finding.passed))
         .collect();
 
-    // Count failed findings that have an actionable remediation (a runnable
-    // command OR a manual step). The fix.sh script covers all of them.
     let actionable_count = findings
         .iter()
         .filter(|sf| !sf.finding.passed && is_actionable(&sf.finding.remediation))
@@ -358,7 +344,7 @@ fn render_inner(
     )
 }
 
-/// Render a single finding as a collapsible row
+/// Pojedynczy wynik jako rozwijana sekcja
 fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> String {
     let band = if sf.finding.passed { "passed" } else { sf.risk_band() };
     let open_attr = if open { " open" } else { "" };
@@ -372,7 +358,6 @@ fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> Stri
         )
     };
 
-    // Auto-fix button — only for failed findings that expose a runnable command.
     let fix_button = if sf.finding.passed {
         String::new()
     } else {
@@ -385,8 +370,6 @@ fn render_finding(sf: &ScoredFinding, ctx: AssetCriticality, open: bool) -> Stri
         }
     };
 
-    // Data attributes that let the top-level "fix.sh" script include EVERY
-    // failed finding: data-cmd for runnable steps, data-rem for manual ones.
     let data_attrs = if !sf.finding.passed && is_actionable(&sf.finding.remediation) {
         let cmd_attr = match fix_command(&sf.finding.remediation) {
             Some(cmd) => format!(r#" data-cmd="{}""#, esc(&cmd)),
